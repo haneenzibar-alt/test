@@ -1,5 +1,6 @@
 "use client";
 
+import { Span } from "next/dist/trace";
 import { useState } from "react";
 
 const healthGoals = [
@@ -32,9 +33,22 @@ export default function LocationHealthGoal() {
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
             Country
           </p>
-          <div className="pointer-events-none w-full rounded-xl border border-gray-200 px-4 py-4 text-gray-800">
-            🇱🇧 Lebanon
-          </div>
+        <div>
+  <label className="mb-2 block text-sm font-semibold text-gray-600">
+    COUNTRY
+  </label>
+
+  <select
+    className="w-full rounded-xl border border-gray-200 px-4 py-4 text-gray-800 outline-none"
+    defaultValue="Lebanon"
+  >
+    <option value="Lebanon">🇱🇧 Lebanon</option>
+    <option value="Jordan">🇯🇴 Jordan</option>
+    <option value="UAE">🇦🇪 UAE</option>
+    <option value="Saudi Arabia">🇸🇦 Saudi Arabia</option>
+    <option value="Egypt">🇪🇬 Egypt</option>
+  </select>
+</div>
         </div>
 
         <div>
