@@ -1,12 +1,30 @@
 "use client";
 
-import { useState } from "react";
-
-export default function Personalinform() {
-  const [sex, setSex] = useState("female");
-
+export default function Personalinform({
+  name,
+  setName,
+  sex,
+  setSex,
+  age,
+  setAge,
+  weight,
+  setWeight,
+  height,
+  setHeight,
+}: {
+  name: string;
+  setName: (value: string) => void;
+  sex: "female" | "male";
+  setSex: (value: "female" | "male") => void;
+  age: number;
+  setAge: (value: number) => void;
+  weight: number;
+  setWeight: (value: number) => void;
+  height: number;
+  setHeight: (value: number) => void;
+}) {
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-12 md:px-6">
+    <div className="mx-auto max-w-2xl px-6 py-4">
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
         <div className="mb-8 flex items-start gap-4">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1a5c38] text-sm font-bold text-white">
@@ -28,6 +46,8 @@ export default function Personalinform() {
           </label>
           <input
             type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Sarah Hassan"
             className="w-full rounded-xl border border-gray-200 px-4 py-4 text-gray-800 placeholder-gray-400"
           />
@@ -71,7 +91,8 @@ export default function Personalinform() {
             <div className="rounded-xl border border-gray-200 px-4 py-4 text-center">
               <input
                 type="number"
-                defaultValue={25}
+                value={age}
+                onChange={(e) => setAge(Number(e.target.value))}
                 className="w-full bg-transparent text-center text-lg font-bold text-gray-900 outline-none"
               />
               <p className="text-xs text-gray-400">years</p>
@@ -84,7 +105,8 @@ export default function Personalinform() {
             <div className="rounded-xl border border-gray-200 px-4 py-4 text-center">
               <input
                 type="number"
-                defaultValue={65}
+                value={weight}
+                onChange={(e) => setWeight(Number(e.target.value))}
                 className="w-full bg-transparent text-center text-lg font-bold text-gray-900 outline-none"
               />
               <p className="text-xs text-gray-400">kg</p>
@@ -97,7 +119,8 @@ export default function Personalinform() {
             <div className="rounded-xl border border-gray-200 px-4 py-4 text-center">
               <input
                 type="number"
-                defaultValue={165}
+                value={height}
+                onChange={(e) => setHeight(Number(e.target.value))}
                 className="w-full bg-transparent text-center text-lg font-bold text-gray-900 outline-none"
               />
               <p className="text-xs text-gray-400">cm</p>

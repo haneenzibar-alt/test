@@ -1,10 +1,22 @@
+"use client";
+
+import { useProfile } from "../Context/ProfileContext";
+import PlannerLocked from "../components/PlannerLocked";
+import PlannerHeader from "../complanner/PlannerHeader";
+
 export default function PlannerPage() {
+  const { planGenerated } = useProfile();
+
+  if (!planGenerated) {
+    return <PlannerLocked />;
+  }
+
   return (
-    <section className="rounded-2xl bg-white p-8 shadow-sm">
-      <h1 className="text-3xl font-semibold">Planner</h1>
-      <p className="mt-4 text-stone-600">
-        This is the weekly planner page. Meal planning will be added later.
-      </p>
-    </section>
+    <div className="mx-auto max-w-3xl px-6 py-12">
+      <h1 className="font-serif text-3xl font-bold text-gray-900">
+       
+      </h1>
+      <PlannerHeader />
+    </div>
   );
 }
