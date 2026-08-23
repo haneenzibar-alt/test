@@ -1,3 +1,5 @@
-export default function NutrisionCoachPage() {
-  return <main>Nutrition Coach</main>;
+import { redirect } from "next/navigation";
+
+export default function NutrisionCoachRedirect() {
+  redirect("/nutrition-coach");
 }
