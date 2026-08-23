@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Plus } from "lucide-react";
 
 const PLATFORM_LINKS = [
   { label: "Home", href: "/" },
@@ -35,14 +36,14 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-linear-to-br from-emerald-950 to-emerald-900 px-6 py-16 text-emerald-50">
+    <footer className="bg-gradient-to-br from-emerald-950 to-emerald-900 px-6 py-16 text-emerald-50">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_0.8fr_0.8fr_1fr]">
           {/* Brand column */}
           <div>
             <Link href="/" className="mb-1 flex items-center gap-2">
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-700">
-                <span className="text-lg text-white">➤</span>
+                <Plus className="h-5 w-5 text-white" strokeWidth={2.5} />
               </span>
               <span className="text-xl font-bold text-white">FitPlate</span>
               <span className="rounded-md bg-orange-500 px-1.5 py-0.5 text-xs font-bold text-white">
