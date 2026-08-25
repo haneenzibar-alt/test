@@ -1,5 +1,8 @@
 "use client";
 
+import Card from "@/components/ui/Card";
+import Input from "@/components/ui/Input";
+
 export default function Personalinform({
   name,
   setName,
@@ -24,36 +27,22 @@ export default function Personalinform({
   setHeight: (value: number) => void;
 }) {
   return (
-    <div className="mx-auto max-w-2xl px-6 py-4">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
-        <div className="mb-8 flex items-start gap-4">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1a5c38] text-sm font-bold text-white">
-            1
-          </span>
-          <div>
-            <h2 className="font-serif text-2xl font-bold text-gray-900">
-              Personal Information
-            </h2>
-            <p className="mt-1 text-sm text-gray-500">
-              Your basic details for accurate BMR calculation
-            </p>
-          </div>
-        </div>
+    
+      <Card
+        step={1}
+        color="emerald"
+        title="Personal Information"
+        description="Your basic details for accurate BMR calculation"
+      >
+        <Input
+          label="Full Name"
+          name="fullName"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="e.g. Sarah Hassan"
+        />
 
-        <div className="mb-6">
-          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Full Name
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Sarah Hassan"
-            className="w-full rounded-xl border border-gray-200 px-4 py-4 text-gray-800 placeholder-gray-400"
-          />
-        </div>
-
-        <div className="mb-6">
+        <div>
           <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
             Biological Sex
           </label>
@@ -127,7 +116,7 @@ export default function Personalinform({
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </Card>
+   
   );
 }

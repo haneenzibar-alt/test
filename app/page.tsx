@@ -3,7 +3,7 @@
 import { useProfile } from "./Context/ProfileContext";
 import Homepage from "./Homepage/page";
 import Personalinform from "./components/Personalinform";
-import GoalsForm from "./components/GoalsForm";
+import GoalsForm from "./components/LocationandHealth";
 import Activitylevel from "./components/Activitylevel";
 import FoodSafety from "./components/FoodSafety";
 import MealPreferences from "./components/MealPreferences";
@@ -129,6 +129,7 @@ export default function Home() {
             setWorkoutDays={setWorkoutDays}
           />
           <FoodSafety />
+          
           <MealPreferences
             mealsPerDay={mealsPerDay}
             setMealsPerDay={setMealsPerDay}

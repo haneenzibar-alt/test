@@ -1,7 +1,7 @@
 "use client";
 
 import { useProfile } from "../Context/ProfileContext";
-import PlannerLocked from "../components/PlannerLocked";
+import PlannerLocked from "../complanner/PlannerLocked";
 import PlannerHeader from "../complanner/PlannerHeader";
 
 export default function PlannerPage() {

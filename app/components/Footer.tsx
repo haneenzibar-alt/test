@@ -36,7 +36,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-gradient-to-br from-emerald-950 to-emerald-900 px-6 py-16 text-emerald-50">
+    <footer className="bg-linear-to-br from-emerald-950 to-emerald-900 px-6 py-16 text-emerald-50">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_0.8fr_0.8fr_1fr]">
           {/* Brand column */}

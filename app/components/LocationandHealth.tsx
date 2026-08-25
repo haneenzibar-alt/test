@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Card from "@/components/ui/Card";
 
 const COUNTRIES = [
   { code: "LB", name: "Lebanon" },
@@ -40,24 +41,14 @@ export default function GoalsForm({
   const currentCountry = COUNTRIES.find((c) => c.name === country) ?? COUNTRIES[0];
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-4">
-      <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-        <div className="mb-8 flex items-start gap-4">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">
-            2
-          </span>
-          <div>
-            <h2 className="font-serif text-2xl font-bold text-gray-900">
-              Location &amp; Health Goal
-            </h2>
-            <p className="text-sm text-gray-500">
-              We&apos;ll recommend meals from your country&apos;s cuisine
-            </p>
-          </div>
-        </div>
-
-        {/* Country selector */}
-        <div className="relative mb-6">
+    
+      <Card
+        step={2}
+        color="blue"
+        title="Location & Health Goal"
+        description="We'll recommend meals from your country's cuisine"
+      >
+        <div className="relative">
           <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
             Your Country
           </label>
@@ -98,7 +89,6 @@ export default function GoalsForm({
           )}
         </div>
 
-        {/* Health Goal */}
         <div>
           <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
             Health Goal
@@ -138,7 +128,7 @@ export default function GoalsForm({
             })}
           </div>
         </div>
-      </div>
-    </div>
+      </Card>
+    
   );
 }

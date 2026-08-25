@@ -1,5 +1,7 @@
 "use client";
 
+import Card from "@/components/ui/Card";
+
 const WORKOUT_DAYS = [0, 1, 2, 3, 4, 5, 6, 7];
 
 export default function Activitylevel({
@@ -10,22 +12,13 @@ export default function Activitylevel({
   setWorkoutDays: (value: number) => void;
 }) {
   return (
-    <div className="mx-auto max-w-2xl px-6 py-4">
-      <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-        <div className="mb-8 flex items-start gap-4">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded- bg-orange-500 font-bold text-white">
-            3
-          </span>
-          <div>
-            <h2 className="font-serif text-2xl font-bold text-gray-900">
-              Activity Level
-            </h2>
-            <p className="text-sm text-gray-500">
-              How many days a week do you work out?
-            </p>
-          </div>
-        </div>
-
+    
+      <Card
+        step={3}
+        color="orange"
+        title="Activity Level"
+        description="How many days a week do you work out?"
+      >
         <div>
           <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
             Weekly Workout Frequency
@@ -51,7 +44,7 @@ export default function Activitylevel({
           </div>
           <p className="mt-2 text-xs text-gray-400">days per week</p>
         </div>
-      </div>
-    </div>
+      </Card>
+
   );
 }
