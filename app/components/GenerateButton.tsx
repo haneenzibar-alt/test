@@ -22,7 +22,7 @@ export default function GenerateButton({
         onClick={handleClick}
         className={`w-full rounded-xl px-6 py-4 text-lg font-semibold transition-colors ${
           isEnabled
-            ? "cursor-pointer bg-linear-to-r from-emerald-700 to-emerald-800 text-white hover:from-emerald-800 hover:to-emerald-900"
+            ? "cursor-pointer bg-gradient-to-r from-emerald-700 to-emerald-800 text-white hover:from-emerald-800 hover:to-emerald-900"
             : "cursor-not-allowed bg-gray-100 text-gray-400"
         }`}
       >

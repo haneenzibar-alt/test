@@ -23,6 +23,10 @@ type ProfileContextType = {
   setMealsPerDay: (v: number) => void;
   planGenerated: boolean;
   setPlanGenerated: (v: boolean) => void;
+
+  // Used to draw attention back to the Name field when Generate is clicked too early
+  nameFieldHighlighted: boolean;
+  setNameFieldHighlighted: (v: boolean) => void;
 };
 
 const ProfileContext = createContext<ProfileContextType | undefined>(
@@ -40,6 +44,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [workoutDays, setWorkoutDays] = useState(3);
   const [mealsPerDay, setMealsPerDay] = useState(3);
   const [planGenerated, setPlanGenerated] = useState(false);
+  const [nameFieldHighlighted, setNameFieldHighlighted] = useState(false);
 
   return (
     <ProfileContext.Provider
@@ -64,6 +69,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         setMealsPerDay,
         planGenerated,
         setPlanGenerated,
+        nameFieldHighlighted,
+        setNameFieldHighlighted,
       }}
     >
       {children}

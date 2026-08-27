@@ -48,6 +48,7 @@ export default function FoodSafety() {
   }
 
   return (
+     <div className="mx-auto max-w-2xl px-6 py-4">
     <Card
       step={4}
       color="red"
@@ -82,5 +83,6 @@ export default function FoodSafety() {
         onBlur={() => handleBlur("dislikes")}
       />
     </Card>
+    </div>
   );
 }

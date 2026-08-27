@@ -12,7 +12,7 @@ export default function Activitylevel({
   setWorkoutDays: (value: number) => void;
 }) {
   return (
-    
+    <div className="mx-auto max-w-2xl px-6 py-4">
       <Card
         step={3}
         color="orange"
@@ -45,6 +45,6 @@ export default function Activitylevel({
           <p className="mt-2 text-xs text-gray-400">days per week</p>
         </div>
       </Card>
-
+    </div>
   );
 }

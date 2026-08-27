@@ -41,7 +41,7 @@ export default function GoalsForm({
   const currentCountry = COUNTRIES.find((c) => c.name === country) ?? COUNTRIES[0];
 
   return (
-    
+    <div className="mx-auto max-w-2xl px-6 py-4">
       <Card
         step={2}
         color="blue"
@@ -129,6 +129,6 @@ export default function GoalsForm({
           </div>
         </div>
       </Card>
-    
+    </div>
   );
 }

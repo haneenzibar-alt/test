@@ -2,6 +2,7 @@
 
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
+import { useProfile } from "@/Context/ProfileContext";
 
 export default function Personalinform({
   name,
@@ -26,8 +27,10 @@ export default function Personalinform({
   height: number;
   setHeight: (value: number) => void;
 }) {
+  const { nameFieldHighlighted, setNameFieldHighlighted } = useProfile();
+
   return (
-    
+    <div className="mx-auto max-w-2xl px-6 py-4">
       <Card
         step={1}
         color="emerald"
@@ -38,8 +41,14 @@ export default function Personalinform({
           label="Full Name"
           name="fullName"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            if (e.target.value.trim() !== "") {
+              setNameFieldHighlighted(false);
+            }
+          }}
           placeholder="e.g. Sarah Hassan"
+          highlight={nameFieldHighlighted}
         />
 
         <div>
@@ -117,6 +126,6 @@ export default function Personalinform({
           </div>
         </div>
       </Card>
-   
+    </div>
   );
 }

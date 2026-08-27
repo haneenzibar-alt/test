@@ -25,7 +25,7 @@ export default function MealPreferences({
   const [mealSource, setMealSource] = useState("mix");
 
   return (
-  
+    <div className="mx-auto max-w-2xl px-6 py-4">
       <Card
         step={5}
         color="purple"
@@ -49,6 +49,6 @@ export default function MealPreferences({
           onChange={setMealSource}
         />
       </Card>
-    
+    </div>
   );
 }

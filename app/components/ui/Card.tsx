@@ -26,7 +26,6 @@ export default function Card({
   children,
 }: CardProps) {
   return (
-    <div className="mx-auto max-w-2xl px-6 py-4">
     <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
       {(step !== undefined || title || description) && (
         <div className="mb-8 flex items-start gap-4">
@@ -55,7 +54,6 @@ export default function Card({
           {footer}
         </div>
       )}
-    </div>
     </div>
   );
 }
