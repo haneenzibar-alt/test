@@ -3,17 +3,18 @@
 
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
+datasource db {
+  provider = "postgresql"
+}
+
 generator client {
   provider = "prisma-client"
   output   = "../app/generated/prisma"
 }
 
-datasource db {
-  provider = "postgresql"
-}
-
 enum Role {
   USER
+  NUTRITIONIST
   ADMIN
 }
 
@@ -50,6 +51,28 @@ enum MealType {
   SNACK
 }
 
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+// New enums to match onboarding flow
+
+enum HealthGoal {
+  LOSE_WEIGHT
+  MAINTAIN_WEIGHT
+  GAIN_WEIGHT
+}
+
+enum MealSourcePreference {
+  COOK_AT_HOME
+  ORDER_DELIVERY
+  EAT_OUTSIDE
+  MIX_OF_ALL
+}
+
 model User {
   id            String             @id @default(uuid())
   email         String             @unique
@@ -60,11 +83,18 @@ model User {
   updatedAt     DateTime           @updatedAt
   
   // Relations
-  profile       UserProfile?
-  mealPlans     MealPlan[]
-  recipes       Recipe[]           // Recipes created by user
-  dailyLogs     DailyLog[]
-  aiQueries     AiRecommendation[]
+  profile             UserProfile?
+  nutritionistProfile NutritionistProfile?
+  mealPlans           MealPlan[]
+  recipes             Recipe[]           // Recipes created by user
+  dailyLogs           DailyLog[]
+  aiQueries           AiRecommendation[]
+  savedMeals          SavedMeal[]
+  coachSessions       CoachSession[]
+  
+  // Appointments
+  appointmentsAsClient       Appointment[] @relation("ClientAppointments")
+  appointmentsAsNutritionist Appointment[] @relation("NutritionistAppointments")
 }
 
 model UserProfile {
@@ -81,6 +111,15 @@ model UserProfile {
   dietType       DietType      @default(STANDARD)
   allergies      String[]      // e.g., ["nuts", "dairy"]
   
+  // Onboarding fields
+  country                String?               // e.g., "Lebanon" — drives cuisine recommendations
+  healthGoal             HealthGoal?           @default(MAINTAIN_WEIGHT)
+  medicalConditions      String[]              // e.g., ["Diabetes (Type 2)", "PCOS"]
+  dislikedFoods          String[]              // e.g., ["Onions", "Cilantro"]
+  mealsPerDay            Int                   @default(3)
+  weeklyWorkoutFrequency Int                   @default(0) // days per week, 0-7
+  mealSourcePreference   MealSourcePreference? @default(COOK_AT_HOME)
+  
   // Daily Target Macros (calculated by AI or custom set)
   calorieTarget  Int?          // in kcal
   proteinTarget  Float?        // in grams
@@ -88,6 +127,21 @@ model UserProfile {
   fatTarget      Float?        // in grams
   
   updatedAt      DateTime      @updatedAt
+}
+
+model NutritionistProfile {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  specialty    String   // e.g., "Sports Nutrition", "Keto Diet", "Weight Loss"
+  bio          String?  // Professional biography
+  credentials  String[] // e.g., ["Registered Dietitian (RD)", "M.S. in Nutrition"]
+  hourlyRate   Float?   // Consultation rate/hour
+  availability String?  // Freeform text or JSON representing schedule
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Recipe {
@@ -102,6 +156,7 @@ model Recipe {
   carbs        Float              // in grams
   fat          Float              // in grams
   imageUrl     String?
+  country      String?            // cuisine origin, e.g. "Lebanon"
   isAiGenerated Boolean           @default(false)
   
   // Relations
@@ -110,6 +165,7 @@ model Recipe {
   ingredients  RecipeIngredient[]
   mealPlanMeals MealPlanMeal[]
   mealLogs     MealLog[]
+  savedByUsers SavedMeal[]
   
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
@@ -186,6 +242,66 @@ model MealLog {
   servingSize    Float   @default(1.0) // multiplier for servings
 }
 
+// "Saved" nav section — users bookmarking meals for later
+model SavedMeal {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipeId  String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, recipeId]) // can't save the same meal twice
+}
+
+// "Restaurants" nav section
+model Restaurant {
+  id          String   @id @default(uuid())
+  name        String
+  country     String?  // e.g., "Lebanon"
+  cuisine     String?  // e.g., "Lebanese", "Italian"
+  address     String?
+  latitude    Float?
+  longitude   Float?
+  rating      Float?
+  imageUrl    String?
+  menuItems   RestaurantMenuItem[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RestaurantMenuItem {
+  id           String     @id @default(uuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  name         String
+  calories     Int?
+  protein      Float?
+  carbs        Float?
+  fat          Float?
+  price        Float?
+}
+
+model Appointment {
+  id             String            @id @default(uuid())
+  clientId       String
+  client         User              @relation("ClientAppointments", fields: [clientId], references: [id], onDelete: Cascade)
+  nutritionistId String
+  nutritionist   User              @relation("NutritionistAppointments", fields: [nutritionistId], references: [id], onDelete: Cascade)
+  
+  scheduledAt    DateTime          // Appointment date and time
+  duration       Int               @default(30) // Duration in minutes
+  status         AppointmentStatus @default(PENDING)
+  notes          String?           // Notes, virtual link, or questions
+  
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([clientId])
+  @@index([nutritionistId])
+}
+
 model AiRecommendation {
   id                 String   @id @default(uuid())
   userId             String
@@ -193,4 +309,24 @@ model AiRecommendation {
   prompt             String   // The contextual details sent to the LLM
   response           Json     // Structured recommendation outputs (meals, targets, feedback)
   createdAt          DateTime @default(now())
+}
+
+// "Nutrition Coach" (voice/chat) nav section
+model CoachSession {
+  id        String         @id @default(uuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String?        // e.g., auto-generated summary of the session
+  messages  CoachMessage[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model CoachMessage {
+  id        String       @id @default(uuid())
+  sessionId String
+  session   CoachSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String       // "user" or "assistant"
+  content   String
+  createdAt DateTime     @default(now())
 }
