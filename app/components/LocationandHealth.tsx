@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import Card from "@/components/ui/Card";
+import { useQuery } from "@tanstack/react-query";
+import { UserProfile } from "@/generated/prisma/client";
+import axios from "axios";
 
 const COUNTRIES = [
   { code: "LB", name: "Lebanon" },
@@ -40,6 +43,19 @@ export default function GoalsForm({
   const [isCountryOpen, setIsCountryOpen] = useState(false);
   const currentCountry = COUNTRIES.find((c) => c.name === country) ?? COUNTRIES[0];
 
+  const { data: profileData, isLoading, error } = useQuery<UserProfile>({
+  queryKey: ["profile"],
+  queryFn: async () => {
+    const response = await axios.get("/api/profile?userId=123");
+
+    if (!response.data.success) {
+      throw new Error(response.data.error ?? "Failed to fetch profile data");
+    }
+
+    return response.data.data;
+  },
+});
+console.log(profileData, isLoading, error);
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
       <Card

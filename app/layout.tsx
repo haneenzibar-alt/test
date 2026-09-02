@@ -3,7 +3,7 @@ import "./globals.css";
 import { ProfileProvider } from "./Context/ProfileContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-
+import Providers from "./Providers";
 
 export const metadata: Metadata = {
   title: "FitPlate AI",
@@ -19,11 +19,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ProfileProvider>
-          <Navbar />
-          {children}
-        </ProfileProvider>
-        <Footer />
+        <Providers>
+          <ProfileProvider>
+            <Navbar />
+            {children}
+          </ProfileProvider>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

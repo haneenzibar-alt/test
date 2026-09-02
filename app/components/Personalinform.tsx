@@ -3,6 +3,10 @@
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import { useProfile } from "@/Context/ProfileContext";
+import { useQuery } from "@tanstack/react-query";
+import { UserProfile } from "@/generated/prisma/client";
+import axios from "axios";
+
 
 export default function Personalinform({
   name,
@@ -29,6 +33,19 @@ export default function Personalinform({
 }) {
   const { nameFieldHighlighted, setNameFieldHighlighted } = useProfile();
 
+const { data: profileData, isLoading, error } = useQuery<UserProfile>({
+  queryKey: ["profile"],
+  queryFn: async () => {
+    const response = await axios.get("/api/profile?userId=123");
+
+    if (!response.data.success) {
+      throw new Error(response.data.error ?? "Failed to fetch profile data");
+    }
+
+    return response.data.data;
+  },
+});
+console.log(profileData, isLoading, error);
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
       <Card
@@ -50,7 +67,15 @@ export default function Personalinform({
           placeholder="e.g. Sarah Hassan"
           highlight={nameFieldHighlighted}
         />
-
+            {isLoading && <p className="text-sm text-gray-500">Loading profile data...</p>}
+            {error && <p className="text-sm text-red-500">Error loading profile data: {error.message}</p>}
+            {profileData && (
+              <p className="text-sm text-gray-500">
+                Profile data loaded: , {profileData.gender} , {profileData.age} years old, {profileData.weight} kg, {profileData.height} cm
+              </p>
+            )}
+          
+        <div className="mt-4" />
         <div>
           <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
             Biological Sex
@@ -127,5 +152,5 @@ export default function Personalinform({
         </div>
       </Card>
     </div>
-  );
+);
 }

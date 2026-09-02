@@ -3,28 +3,18 @@
 import { useState } from "react";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
+import { useProfile } from "@/Context/ProfileContext";
 
-type FormValues = {
-  allergies: string;
-  conditions: string;
-  dislikes: string;
-};
+type FieldName = "allergies" | "conditions" | "dislikes";
+type FormErrors = Partial<Record<FieldName, string>>;
 
-type FormErrors = Partial<Record<keyof FormValues, string>>;
-
-const emptyValues: FormValues = {
-  allergies: "",
-  conditions: "",
-  dislikes: "",
-};
-
-const FIELD_LABELS: Record<keyof FormValues, string> = {
+const FIELD_LABELS: Record<FieldName, string> = {
   allergies: "food allergies or intolerances",
   conditions: "medical conditions",
   dislikes: "disliked foods",
 };
 
-function validateField(field: keyof FormValues, value: string): string | undefined {
+function validateField(field: FieldName, value: string): string | undefined {
   if (!value.trim()) {
     return `Please enter your ${FIELD_LABELS[field]}, or write "None" if not applicable`;
   }
@@ -32,57 +22,71 @@ function validateField(field: keyof FormValues, value: string): string | undefin
 }
 
 export default function FoodSafety() {
-  const [values, setValues] = useState<FormValues>(emptyValues);
+  const {
+    allergies,
+    setAllergies,
+    medicalConditions,
+    setMedicalConditions,
+    dislikedFoods,
+    setDislikedFoods,
+  } = useProfile();
+
   const [errors, setErrors] = useState<FormErrors>({});
 
-  function handleChange(field: keyof FormValues, value: string) {
-    setValues((prev) => ({ ...prev, [field]: value }));
+  const fieldMap: Record<FieldName, { value: string; setValue: (v: string) => void }> = {
+    allergies: { value: allergies, setValue: setAllergies },
+    conditions: { value: medicalConditions, setValue: setMedicalConditions },
+    dislikes: { value: dislikedFoods, setValue: setDislikedFoods },
+  };
+
+  function handleChange(field: FieldName, value: string) {
+    fieldMap[field].setValue(value);
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   }
 
-  function handleBlur(field: keyof FormValues) {
-    const error = validateField(field, values[field]);
+  function handleBlur(field: FieldName) {
+    const error = validateField(field, fieldMap[field].value);
     setErrors((prev) => ({ ...prev, [field]: error }));
   }
 
   return (
-     <div className="mx-auto max-w-2xl px-6 py-4">
-    <Card
-      step={4}
-      color="red"
-      title="Food Safety & Health"
-      description="We'll never recommend meals that contain your allergens"
-    >
-      <Input
-        label="Food Allergies & Intolerances"
-        name="allergies"
-        placeholder="e.g. Gluten, Peanuts, Shellfish"
-        value={values.allergies}
-        error={errors.allergies}
-        onChange={(e) => handleChange("allergies", e.target.value)}
-        onBlur={() => handleBlur("allergies")}
-      />
-      <Input
-        label="Medical Conditions"
-        name="conditions"
-        placeholder="e.g. Diabetes, Hypertension, or None"
-        value={values.conditions}
-        error={errors.conditions}
-        onChange={(e) => handleChange("conditions", e.target.value)}
-        onBlur={() => handleBlur("conditions")}
-      />
-      <Input
-        label="Foods You Dislike"
-        name="dislikes"
-        placeholder="e.g. Onions, Cilantro, or None"
-        value={values.dislikes}
-        error={errors.dislikes}
-        onChange={(e) => handleChange("dislikes", e.target.value)}
-        onBlur={() => handleBlur("dislikes")}
-      />
-    </Card>
+    <div className="mx-auto max-w-2xl px-6 py-4">
+      <Card
+        step={4}
+        color="red"
+        title="Food Safety & Health"
+        description="We'll never recommend meals that contain your allergens"
+      >
+        <Input
+          label="Food Allergies & Intolerances"
+          name="allergies"
+          placeholder="e.g. Gluten, Peanuts, Shellfish"
+          value={allergies}
+          error={errors.allergies}
+          onChange={(e) => handleChange("allergies", e.target.value)}
+          onBlur={() => handleBlur("allergies")}
+        />
+        <Input
+          label="Medical Conditions"
+          name="conditions"
+          placeholder="e.g. Diabetes, Hypertension, or None"
+          value={medicalConditions}
+          error={errors.conditions}
+          onChange={(e) => handleChange("conditions", e.target.value)}
+          onBlur={() => handleBlur("conditions")}
+        />
+        <Input
+          label="Foods You Dislike"
+          name="dislikes"
+          placeholder="e.g. Onions, Cilantro, or None"
+          value={dislikedFoods}
+          error={errors.dislikes}
+          onChange={(e) => handleChange("dislikes", e.target.value)}
+          onBlur={() => handleBlur("dislikes")}
+        />
+      </Card>
     </div>
   );
 }

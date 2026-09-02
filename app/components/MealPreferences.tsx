@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Card from "@/components/ui/Card";
 import PillSelect from "@/components/ui/Pillselect";
 import OptionCardGroup from "@/components/ui/Optioncard";
+import { useProfile } from "@/Context/ProfileContext";
 
 const MEALS_PER_DAY = [3, 4, 5];
 
@@ -21,8 +21,7 @@ export default function MealPreferences({
   mealsPerDay: number;
   setMealsPerDay: (value: number) => void;
 }) {
-  // Not tracked in ProfileContext yet — local for now, same as before
-  const [mealSource, setMealSource] = useState("mix");
+  const { mealSource, setMealSource } = useProfile();
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
@@ -42,12 +41,12 @@ export default function MealPreferences({
           columns={3}
         />
 
-        <OptionCardGroup
-          label="Meal Source Preference"
-          options={MEAL_SOURCES}
+      <OptionCardGroup
+            label="Meal Source Preference"
+            options={MEAL_SOURCES}
           value={mealSource}
-          onChange={setMealSource}
-        />
+         onChange={(v) => setMealSource(v as "cook" | "delivery" | "outside" | "mix")}
+/>
       </Card>
     </div>
   );

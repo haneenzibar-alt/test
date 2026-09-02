@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
+import { ActivityLevel } from "@/generated/prisma/client";
 
 type ProfileContextType = {
   name: string;
@@ -17,10 +18,18 @@ type ProfileContextType = {
   setCountry: (v: string) => void;
   goal: "lose" | "maintain" | "gain";
   setGoal: (v: "lose" | "maintain" | "gain") => void;
-  workoutDays: number;
-  setWorkoutDays: (v: number) => void;
+  activityLevel: ActivityLevel | null;
+  setActivityLevel: (v: ActivityLevel) => void;
+  allergies: string;
+  setAllergies: (v: string) => void;
+  medicalConditions: string;
+  setMedicalConditions: (v: string) => void;
+  dislikedFoods: string;
+  setDislikedFoods: (v: string) => void;
   mealsPerDay: number;
   setMealsPerDay: (v: number) => void;
+  mealSource: "cook" | "delivery" | "outside" | "mix";
+  setMealSource: (v: "cook" | "delivery" | "outside" | "mix") => void;
   planGenerated: boolean;
   setPlanGenerated: (v: boolean) => void;
 
@@ -41,8 +50,12 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [height, setHeight] = useState(165);
   const [country, setCountry] = useState("Lebanon");
   const [goal, setGoal] = useState<"lose" | "maintain" | "gain">("maintain");
-  const [workoutDays, setWorkoutDays] = useState(3);
+  const [activityLevel, setActivityLevel] = useState<ActivityLevel | null>(null);
+  const [allergies, setAllergies] = useState("");
+  const [medicalConditions, setMedicalConditions] = useState("");
+  const [dislikedFoods, setDislikedFoods] = useState("");
   const [mealsPerDay, setMealsPerDay] = useState(3);
+  const [mealSource, setMealSource] = useState<"cook" | "delivery" | "outside" | "mix">("mix");
   const [planGenerated, setPlanGenerated] = useState(false);
   const [nameFieldHighlighted, setNameFieldHighlighted] = useState(false);
 
@@ -63,10 +76,18 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         setCountry,
         goal,
         setGoal,
-        workoutDays,
-        setWorkoutDays,
+        activityLevel,
+        setActivityLevel,
+        allergies,
+        setAllergies,
+        medicalConditions,
+        setMedicalConditions,
+        dislikedFoods,
+        setDislikedFoods,
         mealsPerDay,
         setMealsPerDay,
+        mealSource,
+        setMealSource,
         planGenerated,
         setPlanGenerated,
         nameFieldHighlighted,

@@ -1,7 +1,7 @@
 export default function Homepage() {
   return (
     <section className="relative overflow-hidden bg-linear-to-br from-emerald-900 to-emerald-800 px-6 py-22 text-center">
-      {/* Decorative blurred circles */}
+   
       <div className="pointer-events-none absolute -left-20 -bottom-20 h-65 w-65 rounded-full bg-emerald-700/40 blur-3xl" />
       <div className="pointer-events-none absolute -right-20 -top-10 h-65 w-65 rounded-full bg-emerald-700/40 blur-3xl" />
 

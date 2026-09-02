@@ -3,14 +3,23 @@
 import { useState } from "react";
 import { useProfile } from "@/Context/ProfileContext";
 import { MOCK_MEALS } from "@/data/meals";
+import { ActivityLevel } from "@/generated/prisma/client";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const MEAL_ICONS = { breakfast: "🌅", lunch: "☀️", dinner: "🌙", snack: "🍎" };
 const MEAL_LABELS = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack" };
 
+const activityMultiplierMap: Record<ActivityLevel, number> = {
+  SEDENTARY: 1.2,
+  LIGHTLY_ACTIVE: 1.375,
+  MODERATELY_ACTIVE: 1.55,
+  VERY_ACTIVE: 1.725,
+  EXTRA_ACTIVE: 1.9,
+};
+
 export default function Planner() {
-  const { country, weight, height, sex, age, goal, workoutDays } = useProfile();
+  const { country, weight, height, sex, age, goal, activityLevel } = useProfile();
   const [activeDay, setActiveDay] = useState(0);
   const [expandedMealId, setExpandedMealId] = useState<string | null>(null);
   const [savedMealIds, setSavedMealIds] = useState<string[]>([]);
@@ -20,8 +29,9 @@ export default function Planner() {
     sex === "male"
       ? 10 * weight + 6.25 * height - 5 * age + 5
       : 10 * weight + 6.25 * height - 5 * age - 161;
-  const activityMultiplier =
-    workoutDays === 0 ? 1.2 : workoutDays <= 2 ? 1.375 : workoutDays <= 4 ? 1.55 : workoutDays <= 6 ? 1.725 : 1.9;
+  const activityMultiplier = activityLevel
+    ? activityMultiplierMap[activityLevel]
+    : 1.2;
   const tdee = bmr * activityMultiplier;
   const dailyCalories = Math.round(goal === "lose" ? tdee - 500 : goal === "gain" ? tdee + 500 : tdee);
 

@@ -4,7 +4,7 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" //tells prisma my database is postgresql                                     
 }
 
 generator client {
@@ -26,11 +26,10 @@ enum Gender {
 }
 
 enum ActivityLevel {
-  SEDENTARY          // Little to no exercise
-  LIGHTLY_ACTIVE     // Light exercise 1-3 days/week
-  MODERATELY_ACTIVE  // Moderate exercise 3-5 days/week
-  VERY_ACTIVE        // Hard exercise 6-7 days/week
-  EXTRA_ACTIVE       // Very hard exercise, physical job
+  SEDENTARY 
+  LIGHTLY_ACTIVE
+  MODERATELY_ACTIVE 
+  EXTRA_ACTIVE 
 }
 
 enum DietType {
@@ -58,8 +57,6 @@ enum AppointmentStatus {
   COMPLETED
 }
 
-// New enums to match onboarding flow
-
 enum HealthGoal {
   LOSE_WEIGHT
   MAINTAIN_WEIGHT
@@ -73,128 +70,129 @@ enum MealSourcePreference {
   MIX_OF_ALL
 }
 
+
 model User {
-  id            String             @id @default(uuid())
-  email         String             @unique
-  passwordHash  String
-  name          String?
-  role          Role               @default(USER)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
   // Relations
-  profile             UserProfile?
+  profile             Profile?
   nutritionistProfile NutritionistProfile?
   mealPlans           MealPlan[]
-  recipes             Recipe[]           // Recipes created by user
+  recipes             Recipe[]
   dailyLogs           DailyLog[]
   aiQueries           AiRecommendation[]
   savedMeals          SavedMeal[]
   coachSessions       CoachSession[]
-  
+
   // Appointments
   appointmentsAsClient       Appointment[] @relation("ClientAppointments")
   appointmentsAsNutritionist Appointment[] @relation("NutritionistAppointments")
 }
 
-model UserProfile {
-  id             String        @id @default(uuid())
-  userId         String        @unique
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  age            Int?
-  gender         Gender?
-  height         Float?        // in cm
-  weight         Float?        // in kg
-  targetWeight   Float?        // in kg
-  activityLevel  ActivityLevel @default(SEDENTARY)
-  dietType       DietType      @default(STANDARD)
-  allergies      String[]      // e.g., ["nuts", "dairy"]
-  
+model Profile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name          String?
+  age           Int?
+  gender        Gender?
+  height        Float? // in cm
+  weight        Float? // in kg
+  targetWeight  Float? // in kg
+  activityLevel ActivityLevel @default(SEDENTARY)
+  dietType      DietType      @default(STANDARD)
+  allergies     String[] // e.g., ["nuts", "dairy"]
+
   // Onboarding fields
-  country                String?               // e.g., "Lebanon" — drives cuisine recommendations
+  country                String? // e.g., "Lebanon" — drives cuisine recommendations
   healthGoal             HealthGoal?           @default(MAINTAIN_WEIGHT)
-  medicalConditions      String[]              // e.g., ["Diabetes (Type 2)", "PCOS"]
-  dislikedFoods          String[]              // e.g., ["Onions", "Cilantro"]
+  medicalConditions      String[] // e.g., ["Diabetes (Type 2)", "PCOS"]
+  dislikedFoods          String[] // e.g., ["Onions", "Cilantro"]
   mealsPerDay            Int                   @default(3)
   weeklyWorkoutFrequency Int                   @default(0) // days per week, 0-7
   mealSourcePreference   MealSourcePreference? @default(COOK_AT_HOME)
-  
-  // Daily Target Macros (calculated by AI or custom set)
-  calorieTarget  Int?          // in kcal
-  proteinTarget  Float?        // in grams
-  carbTarget     Float?        // in grams
-  fatTarget      Float?        // in grams
-  
-  updatedAt      DateTime      @updatedAt
+
+  calorieTarget Int? // 
+  proteinTarget Float?
+  carbTarget    Float?
+  fatTarget     Float?
+
+  updatedAt DateTime @updatedAt
 }
 
 model NutritionistProfile {
-  id           String   @id @default(uuid())
-  userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  specialty    String   // e.g., "Sports Nutrition", "Keto Diet", "Weight Loss"
-  bio          String?  // Professional biography
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  specialty    String // e.g., "Sports Nutrition", "Keto Diet", "Weight Loss"
+  bio          String? // Professional biography
   credentials  String[] // e.g., ["Registered Dietitian (RD)", "M.S. in Nutrition"]
-  hourlyRate   Float?   // Consultation rate/hour
-  availability String?  // Freeform text or JSON representing schedule
-  
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  hourlyRate   Float? // Consultation rate/hour
+  availability String? // Freeform text or JSON representing schedule
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Recipe {
-  id           String             @id @default(uuid())
-  name         String
-  description  String?
-  instructions String[]           // Step-by-step instructions
-  prepTime     Int?               // in minutes
-  cookTime     Int?               // in minutes
-  calories     Int                // per serving
-  protein      Float              // in grams
-  carbs        Float              // in grams
-  fat          Float              // in grams
-  imageUrl     String?
-  country      String?            // cuisine origin, e.g. "Lebanon"
-  isAiGenerated Boolean           @default(false)
-  
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  instructions  String[] // Step-by-step instructions
+  prepTime      Int? // in minutes
+  cookTime      Int? // in minutes
+  calories      Int // per serving
+  protein       Float // in grams
+  carbs         Float // in grams
+  fat           Float // in grams
+  imageUrl      String?
+  country       String? // cuisine origin, e.g. "Lebanon"
+  isAiGenerated Boolean  @default(false)
+
   // Relations
-  createdById  String?
-  createdBy    User?              @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  ingredients  RecipeIngredient[]
+  createdById   String?
+  createdBy     User?              @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  ingredients   RecipeIngredient[]
   mealPlanMeals MealPlanMeal[]
-  mealLogs     MealLog[]
-  savedByUsers SavedMeal[]
-  
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
+  mealLogs      MealLog[]
+  savedByUsers  SavedMeal[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model RecipeIngredient {
-  id        String   @id @default(uuid())
-  recipeId  String
-  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  name      String   // e.g., "Greek Yogurt"
-  amount    Float    // e.g., 200
-  unit      String   // e.g., "g", "ml", "tbsp"
+  id       String @id @default(uuid())
+  recipeId String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  name     String
+  amount   Float
+  unit     String
 }
 
 model MealPlan {
-  id          String         @id @default(uuid())
-  userId      String
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String         // e.g., "Keto Week 1"
-  description String?
-  startDate   DateTime
-  endDate     DateTime
-  isAiGenerated Boolean      @default(false)
-  
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  description   String?
+  startDate     DateTime
+  endDate       DateTime
+  isAiGenerated Boolean  @default(false)
+
   // Relations
-  meals       MealPlanMeal[]
-  
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  meals MealPlanMeal[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model MealPlanMeal {
@@ -203,38 +201,38 @@ model MealPlanMeal {
   mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
   recipeId   String
   recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  dayOfWeek  Int      // 1 = Monday, 7 = Sunday
+  dayOfWeek  Int
   mealType   MealType
 }
 
 model DailyLog {
-  id                 String    @id @default(uuid())
-  userId             String
-  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date               DateTime  // YYYY-MM-DD
-  waterIntake        Int       @default(0) // in ml
-  weight             Float?    // current weight logged on this day
-  activeCaloriesBurned Int     @default(0) // workouts
-  
+  id                   String   @id @default(uuid())
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date                 DateTime
+  waterIntake          Int      @default(0)
+  weight               Float?
+  activeCaloriesBurned Int      @default(0)
+
   // Relations
-  mealLogs           MealLog[]
-  
-  @@unique([userId, date]) // Ensure one log per user per day
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  mealLogs  MealLog[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([userId, date])
 }
 
 model MealLog {
-  id         String    @id @default(uuid())
+  id         String   @id @default(uuid())
   dailyLogId String
-  dailyLog   DailyLog  @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
+  dailyLog   DailyLog @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
   mealType   MealType
-  
+
   // A log can be linked to an existing Recipe or be a custom food item
-  recipeId   String?
-  recipe     Recipe?   @relation(fields: [recipeId], references: [id], onDelete: SetNull)
-  
-  customFoodName String? // Used if logging something not in the Recipe database
+  recipeId String?
+  recipe   Recipe? @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+
+  customFoodName String?
   calories       Int     @default(0)
   protein        Float   @default(0)
   carbs          Float   @default(0)
@@ -256,19 +254,19 @@ model SavedMeal {
 
 // "Restaurants" nav section
 model Restaurant {
-  id          String   @id @default(uuid())
-  name        String
-  country     String?  // e.g., "Lebanon"
-  cuisine     String?  // e.g., "Lebanese", "Italian"
-  address     String?
-  latitude    Float?
-  longitude   Float?
-  rating      Float?
-  imageUrl    String?
-  menuItems   RestaurantMenuItem[]
+  id        String               @id @default(uuid())
+  name      String
+  country   String? // e.g., "Lebanon"
+  cuisine   String? // e.g., "Lebanese", "Italian"
+  address   String?
+  latitude  Float?
+  longitude Float?
+  rating    Float?
+  imageUrl  String?
+  menuItems RestaurantMenuItem[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model RestaurantMenuItem {
@@ -284,31 +282,31 @@ model RestaurantMenuItem {
 }
 
 model Appointment {
-  id             String            @id @default(uuid())
+  id             String @id @default(uuid())
   clientId       String
-  client         User              @relation("ClientAppointments", fields: [clientId], references: [id], onDelete: Cascade)
+  client         User   @relation("ClientAppointments", fields: [clientId], references: [id], onDelete: Cascade)
   nutritionistId String
-  nutritionist   User              @relation("NutritionistAppointments", fields: [nutritionistId], references: [id], onDelete: Cascade)
-  
-  scheduledAt    DateTime          // Appointment date and time
-  duration       Int               @default(30) // Duration in minutes
-  status         AppointmentStatus @default(PENDING)
-  notes          String?           // Notes, virtual link, or questions
-  
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  nutritionist   User   @relation("NutritionistAppointments", fields: [nutritionistId], references: [id], onDelete: Cascade)
+
+  scheduledAt DateTime // Appointment date and time
+  duration    Int               @default(30) // Duration in minutes
+  status      AppointmentStatus @default(PENDING)
+  notes       String? // Notes, virtual link, or questions
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([clientId])
   @@index([nutritionistId])
 }
 
 model AiRecommendation {
-  id                 String   @id @default(uuid())
-  userId             String
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  prompt             String   // The contextual details sent to the LLM
-  response           Json     // Structured recommendation outputs (meals, targets, feedback)
-  createdAt          DateTime @default(now())
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt    String // The contextual details sent to the LLM
+  response  Json // Structured recommendation outputs (meals, targets, feedback)
+  createdAt DateTime @default(now())
 }
 
 // "Nutrition Coach" (voice/chat) nav section
@@ -316,7 +314,7 @@ model CoachSession {
   id        String         @id @default(uuid())
   userId    String
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title     String?        // e.g., auto-generated summary of the session
+  title     String? // e.g., auto-generated summary of the session
   messages  CoachMessage[]
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
@@ -326,7 +324,7 @@ model CoachMessage {
   id        String       @id @default(uuid())
   sessionId String
   session   CoachSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  role      String       // "user" or "assistant"
+  role      String // "user" or "assistant"
   content   String
   createdAt DateTime     @default(now())
 }
