@@ -1,10 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
 
 datasource db {
-  provider = "postgresql" //tells prisma my database is postgresql                                     
+  provider = "postgresql"                                      
 }
 
 generator client {
@@ -26,10 +23,11 @@ enum Gender {
 }
 
 enum ActivityLevel {
-  SEDENTARY 
+  SEDENTARY
   LIGHTLY_ACTIVE
-  MODERATELY_ACTIVE 
-  EXTRA_ACTIVE 
+  MODERATELY_ACTIVE
+  VERY_ACTIVE
+  EXTRA_ACTIVE
 }
 
 enum DietType {
@@ -84,7 +82,7 @@ model User {
   profile             Profile?
   nutritionistProfile NutritionistProfile?
   mealPlans           MealPlan[]
-  recipes             Recipe[]
+ 
   dailyLogs           DailyLog[]
   aiQueries           AiRecommendation[]
   savedMeals          SavedMeal[]
@@ -142,41 +140,7 @@ model NutritionistProfile {
   updatedAt DateTime @updatedAt
 }
 
-model Recipe {
-  id            String   @id @default(uuid())
-  name          String
-  description   String?
-  instructions  String[] // Step-by-step instructions
-  prepTime      Int? // in minutes
-  cookTime      Int? // in minutes
-  calories      Int // per serving
-  protein       Float // in grams
-  carbs         Float // in grams
-  fat           Float // in grams
-  imageUrl      String?
-  country       String? // cuisine origin, e.g. "Lebanon"
-  isAiGenerated Boolean  @default(false)
 
-  // Relations
-  createdById   String?
-  createdBy     User?              @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  ingredients   RecipeIngredient[]
-  mealPlanMeals MealPlanMeal[]
-  mealLogs      MealLog[]
-  savedByUsers  SavedMeal[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model RecipeIngredient {
-  id       String @id @default(uuid())
-  recipeId String
-  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  name     String
-  amount   Float
-  unit     String
-}
 
 model MealPlan {
   id            String   @id @default(uuid())
@@ -200,7 +164,7 @@ model MealPlanMeal {
   mealPlanId String
   mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
   recipeId   String
-  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+ 
   dayOfWeek  Int
   mealType   MealType
 }
@@ -229,8 +193,7 @@ model MealLog {
   mealType   MealType
 
   // A log can be linked to an existing Recipe or be a custom food item
-  recipeId String?
-  recipe   Recipe? @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+
 
   customFoodName String?
   calories       Int     @default(0)
@@ -246,7 +209,7 @@ model SavedMeal {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   recipeId  String
-  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  
   createdAt DateTime @default(now())
 
   @@unique([userId, recipeId]) // can't save the same meal twice

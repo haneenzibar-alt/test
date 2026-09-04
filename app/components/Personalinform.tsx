@@ -4,9 +4,10 @@ import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import { useProfile } from "@/Context/ProfileContext";
 import { useQuery } from "@tanstack/react-query";
-import { UserProfile } from "@/generated/prisma/client";
-import axios from "axios";
+import { Profile } from "@/generated/prisma/client";
+import { axiosGet } from "@/lib/axios";
 
+const CURRENT_USER_ID = "123";
 
 export default function Personalinform({
   name,
@@ -33,19 +34,11 @@ export default function Personalinform({
 }) {
   const { nameFieldHighlighted, setNameFieldHighlighted } = useProfile();
 
-const { data: profileData, isLoading, error } = useQuery<UserProfile>({
-  queryKey: ["profile"],
-  queryFn: async () => {
-    const response = await axios.get("/api/profile?userId=123");
-
-    if (!response.data.success) {
-      throw new Error(response.data.error ?? "Failed to fetch profile data");
-    }
-
-    return response.data.data;
-  },
-});
-console.log(profileData, isLoading, error);
+  const { data: profileData, isLoading, error } = useQuery<Profile>({
+    queryKey: ["profile"],
+    queryFn: () => axiosGet<Profile>(`/profile/${CURRENT_USER_ID}`),
+  });
+  console.log(profileData, isLoading, error);
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
       <Card

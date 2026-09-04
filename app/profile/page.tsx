@@ -3,13 +3,12 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosGet, axiosPut, axiosDelete, ApiError } from "@/lib/axios";
-import { UserProfile, User } from "@/generated/prisma/client";
+import {Profile, User } from "@/generated/prisma/client";
 import ProfileFormModal, { ProfileFormValues } from "@/profile/ProfileFormModal";
 
-// TODO: replace with the real logged-in user's id from Supabase Auth
 const CURRENT_USER_ID = "123";
 
-type ProfileWithUser = UserProfile & { user: User };
+type ProfileWithUser = Profile & { user: User };
 
 // Same lookup used on the Home page and PlanResults, kept in sync
 const activityMultiplierMap: Record<string, number> = {
@@ -48,7 +47,6 @@ const mealSourceLabelMap: Record<string, string> = {
   MIX_OF_ALL: "Mix of All",
 };
 
-
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-4 border-b border-gray-100 py-3 last:border-b-0">
@@ -70,7 +68,8 @@ export default function ProfilePage() {
     queryKey: ["profile"],
     queryFn: async () => {
       try {
-        return await axiosGet<ProfileWithUser>(`/profile?userId=${CURRENT_USER_ID}`);
+        // Now hits the [id] route instead of the query-param based one
+        return await axiosGet<ProfileWithUser>(`/profile/${CURRENT_USER_ID}`);
       } catch (err) {
         if (err instanceof ApiError && err.status === 404) {
           return null;
@@ -83,6 +82,7 @@ export default function ProfilePage() {
   const invalidateProfile = () =>
     queryClient.invalidateQueries({ queryKey: ["profile"] });
 
+  // PUT still lives on the base /profile route, so this is unchanged
   const updateMutation = useMutation({
     mutationFn: (values: ProfileFormValues) =>
       axiosPut<ProfileFormValues & { userId: string }, ProfileWithUser>("/profile", {
@@ -95,8 +95,9 @@ export default function ProfilePage() {
     },
   });
 
+  // DELETE still lives on the base /profile route, so this is unchanged
   const deleteMutation = useMutation({
-    mutationFn: () => axiosDelete<UserProfile>(`/profile?userId=${CURRENT_USER_ID}`),
+    mutationFn: () => axiosDelete<Profile>(`/profile?userId=${CURRENT_USER_ID}`),
     onSuccess: () => invalidateProfile(),
   });
 
@@ -211,7 +212,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          
+          {/* New: Edit button, added on top of the existing design */}
           <button
             type="button"
             onClick={() => setModalOpen(true)}

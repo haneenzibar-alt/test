@@ -7,9 +7,9 @@ import {
   Gender,
   HealthGoal,
   MealSourcePreference,
-  UserProfile,
+  Profile,
 } from "@/generated/prisma/client";
-import { axiosPost } from "@/lib/axios";
+import { axiosPost, axiosPut } from "@/lib/axios";
 import Homepage from "./Homepage/page";
 import Personalinform from "./components/Personalinform";
 import GoalsForm from "./components/LocationandHealth";
@@ -92,9 +92,8 @@ export default function Home() {
   } = useProfile();
 
   const saveProfileMutation = useMutation({
-    mutationFn: () =>
-      axiosPost<Record<string, unknown>, UserProfile>("/profile", {
-        userId: CURRENT_USER_ID,
+    mutationFn: () => {
+      const payload: Record<string, unknown> = {
         name,
         age,
         gender: genderMap[sex],
@@ -108,7 +107,25 @@ export default function Home() {
         dislikedFoods: parseListField(dislikedFoods),
         mealsPerDay,
         mealSourcePreference: mealSourceMap[mealSource],
-      }),
+      };
+
+      // Check the shared ["profile"] cache (populated by Personalinform's
+      // GET query) to decide create vs update. If it's already loaded and
+      // non-null, a profile exists — go through PUT instead of POST.
+      const existingProfile = queryClient.getQueryData(["profile"]);
+
+      if (existingProfile) {
+        return axiosPut<Record<string, unknown> & { userId: string }, Profile>(
+          "/profile",
+          { userId: CURRENT_USER_ID, ...payload }
+        );
+      }
+
+      return axiosPost<Record<string, unknown>, Profile>(
+        `/profile/${CURRENT_USER_ID}`,
+        payload
+      );
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
     },

@@ -2,8 +2,10 @@
 
 import Card from "@/components/ui/Card";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { axiosGet, ApiError } from "@/lib/axios";
 import { ActivityLevel } from "@/generated/prisma/client";
+
+const CURRENT_USER_ID = "123";
 
 export default function Activitylevel({
   activityLevel,
@@ -16,10 +18,9 @@ export default function Activitylevel({
     queryKey: ["profile"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/profile?userId=123");
-        return response.data.data;
+        return await axiosGet(`/profile/${CURRENT_USER_ID}`);
       } catch (err) {
-        if (axios.isAxiosError(err) && err.response?.status === 404) {
+        if (err instanceof ApiError && err.status === 404) {
           return null; // no profile yet — normal for a new user
         }
         throw err;

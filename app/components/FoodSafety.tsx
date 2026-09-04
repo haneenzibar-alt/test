@@ -4,6 +4,10 @@ import { useState } from "react";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import { useProfile } from "@/Context/ProfileContext";
+import { useQuery } from "@tanstack/react-query";
+import { axiosGet, ApiError } from "@/lib/axios";
+
+const CURRENT_USER_ID = "123";
 
 type FieldName = "allergies" | "conditions" | "dislikes";
 type FormErrors = Partial<Record<FieldName, string>>;
@@ -32,6 +36,22 @@ export default function FoodSafety() {
   } = useProfile();
 
   const [errors, setErrors] = useState<FormErrors>({});
+
+  const { data: profileData, isLoading, error } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      try {
+        return await axiosGet(`/profile/${CURRENT_USER_ID}`);
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 404) {
+          return null; // no profile yet — normal for a new user
+        }
+        throw err;
+      }
+    },
+  });
+
+  console.log(profileData, isLoading, error);
 
   const fieldMap: Record<FieldName, { value: string; setValue: (v: string) => void }> = {
     allergies: { value: allergies, setValue: setAllergies },
