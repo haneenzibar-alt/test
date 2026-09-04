@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { initialSavedMeals, type SavedMeal } from "./data";
+import type { SavedMeal } from "./data";
 
 const mealTypeIcons: Record<SavedMeal["mealType"], string> = {
   breakfast: "🍳",
@@ -12,16 +12,61 @@ const mealTypeIcons: Record<SavedMeal["mealType"], string> = {
 };
 
 export default function SavedPage() {
-  const [savedMeals, setSavedMeals] = useState(initialSavedMeals);
+  const [savedMeals, setSavedMeals] = useState<SavedMeal[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    async function loadSavedMeals() {
+      try {
+        const res = await fetch("/api/saved-meals");
+
+        if (!res.ok) {
+          throw new Error("Failed to load saved meals");
+        }
+
+        const data = await res.json();
+        setSavedMeals(data.meals);
+      } catch {
+        setError("تعذّر تحميل الوجبات المحفوظة. حاول مرة ثانية.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadSavedMeals();
+  }, []);
 
   const savedCount = savedMeals.length;
   const savedLabel =
     savedCount === 1 ? "1 meal saved" : `${savedCount} meals saved`;
 
-  function removeMeal(id: string) {
+  async function removeMeal(id: string) {
+    // Optimistic update: منشيل الوجبة من الشاشة فوراً
+    const previousMeals = savedMeals;
     setSavedMeals(savedMeals.filter((meal) => meal.id !== id));
     setMessage("");
+
+    try {
+      const res = await fetch(`/api/saved-meals/${id}`, { method: "DELETE" });
+
+      if (!res.ok) {
+        throw new Error("Failed to remove meal");
+      }
+    } catch {
+      // إذا فشل الطلب، منرجع الوجبة زي ما كانت
+      setSavedMeals(previousMeals);
+      setError("تعذّر حذف الوجبة. حاول مرة ثانية.");
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-full items-center justify-center bg-[#fafaf7] py-20">
+        <p className="text-sm text-gray-500">Loading saved meals...</p>
+      </div>
+    );
   }
 
   return (
@@ -36,6 +81,9 @@ export default function SavedPage() {
       </section>
 
       <div className="mx-auto w-full max-w-2xl px-4 py-6 md:px-6">
+        {error && (
+          <p className="mb-4 text-sm font-medium text-red-600">{error}</p>
+        )}
         {message && (
           <p className="mb-4 text-sm font-medium text-[#1a5c38]">{message}</p>
         )}
