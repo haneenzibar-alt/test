@@ -1,5 +1,7 @@
 "use client";
 
+import { ActivityLevel } from "@/generated/prisma/client";
+
 export default function PlanResults({
   name,
   sex,
@@ -7,7 +9,7 @@ export default function PlanResults({
   weight,
   height,
   goal,
-  workoutDays,
+  activityLevel,
   mealsPerDay,
   country,
 }: {
@@ -17,7 +19,7 @@ export default function PlanResults({
   weight: number;
   height: number;
   goal: "lose" | "maintain" | "gain";
-  workoutDays: number;
+  activityLevel: ActivityLevel | null;
   mealsPerDay: number;
   country: string;
 }) {
@@ -27,16 +29,17 @@ export default function PlanResults({
       ? 10 * weight + 6.25 * height - 5 * age + 5
       : 10 * weight + 6.25 * height - 5 * age - 161;
 
-  const activityMultiplier =
-    workoutDays === 0
-      ? 1.2
-      : workoutDays <= 2
-      ? 1.375
-      : workoutDays <= 4
-      ? 1.55
-      : workoutDays <= 6
-      ? 1.725
-      : 1.9;
+  const activityMultiplierMap: Record<ActivityLevel, number> = {
+    SEDENTARY: 1.2,
+    LIGHTLY_ACTIVE: 1.375,
+    MODERATELY_ACTIVE: 1.55,
+    VERY_ACTIVE: 1.725,
+    EXTRA_ACTIVE: 1.9,
+  };
+
+  const activityMultiplier = activityLevel
+    ? activityMultiplierMap[activityLevel]
+    : 1.2;
 
   const tdee = bmr * activityMultiplier;
 
@@ -91,7 +94,7 @@ export default function PlanResults({
 
           <p className="mb-8 text-emerald-100/90">
             Goal: <span className="font-semibold text-white">{goalLabel}</span> ·{" "}
-            {mealsPerDay} meals/day · {workoutDays} workouts/week
+            {mealsPerDay} meals/day
           </p>
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

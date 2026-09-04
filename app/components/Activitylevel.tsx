@@ -1,48 +1,77 @@
 "use client";
 
 import Card from "@/components/ui/Card";
+import { useQuery } from "@tanstack/react-query";
+import { axiosGet, ApiError } from "@/lib/axios";
+import { ActivityLevel } from "@/generated/prisma/client";
 
-const WORKOUT_DAYS = [0, 1, 2, 3, 4, 5, 6, 7];
+const CURRENT_USER_ID = "123";
 
 export default function Activitylevel({
-  workoutDays,
-  setWorkoutDays,
+  activityLevel,
+  setActivityLevel,
 }: {
-  workoutDays: number;
-  setWorkoutDays: (value: number) => void;
+  activityLevel: ActivityLevel | null;
+  setActivityLevel: (value: ActivityLevel) => void;
 }) {
+  const { data: profileData, isLoading, error } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      try {
+        return await axiosGet(`/profile/${CURRENT_USER_ID}`);
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 404) {
+          return null; // no profile yet — normal for a new user
+        }
+        throw err;
+      }
+    },
+  });
+
+  console.log(profileData, isLoading, error);
+
+  const options: [ActivityLevel, string, string, string, string][] = [
+    ["SEDENTARY", "🪑", "Sedentary", "Desk job, little to no exercise", "×1.2"],
+    ["LIGHTLY_ACTIVE", "🚶", "Lightly Active", "Light exercise 1–3 days/week", "×1.375"],
+    ["MODERATELY_ACTIVE", "🏃", "Moderately Active", "Moderate exercise 3–5 days/week", "×1.55"],
+    ["VERY_ACTIVE", "🏋", "Very Active", "Hard exercise 6–7 days/week", "×1.725"],
+    ["EXTRA_ACTIVE", "⚡", "Extra Active", "Physical job or twice-daily training", "×1.9"],
+  ];
+
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
       <Card
         step={3}
         color="orange"
         title="Activity Level"
-        description="How many days a week do you work out?"
+        description="Used to calculate your total daily energy expenditure"
       >
-        <div>
-          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Weekly Workout Frequency
-          </label>
-          <div className="flex gap-2">
-            {WORKOUT_DAYS.map((day) => {
-              const isSelected = workoutDays === day;
-              return (
-                <button
-                  key={day}
-                  type="button"
-                  onClick={() => setWorkoutDays(day)}
-                  className={`flex h-11 w-11 items-center justify-center rounded-xl border font-semibold transition-colors ${
-                    isSelected
-                      ? "border-orange-500 bg-orange-500 text-white"
-                      : "border-gray-200 text-gray-400 hover:border-gray-300"
-                  }`}
-                >
-                  {day}
-                </button>
-              );
-            })}
-          </div>
-          <p className="mt-2 text-xs text-gray-400">days per week</p>
+        <div className="space-y-2">
+          {options.map(([val, icon, label, sub, mult]) => (
+            <button
+              key={val}
+              type="button"
+              onClick={() => setActivityLevel(val)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-all cursor-pointer ${
+                activityLevel === val
+                  ? "border-amber-400 bg-amber-50"
+                  : "border-gray-100 bg-white hover:border-gray-200"
+              }`}
+            >
+              <span className={`text-xl w-8 text-center ${activityLevel === val ? "" : "opacity-60"}`}>
+                {icon}
+              </span>
+              <div className="flex-1">
+                <div className={`text-sm font-semibold ${activityLevel === val ? "text-amber-800" : "text-gray-700"}`}>
+                  {label}
+                </div>
+                <div className="text-xs text-gray-400 mt-0.5">{sub}</div>
+              </div>
+              <span className={`text-xs font-bold px-2 py-1 rounded-lg ${activityLevel === val ? "bg-amber-200 text-amber-800" : "bg-gray-100 text-gray-400"}`}>
+                {mult}
+              </span>
+            </button>
+          ))}
         </div>
       </Card>
     </div>

@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import Card from "@/components/ui/Card";
+import { useQuery } from "@tanstack/react-query";
+import { Profile } from "@/generated/prisma/client";
+import { axiosGet } from "@/lib/axios";
+
+const CURRENT_USER_ID = "123";
 
 const COUNTRIES = [
   { code: "LB", name: "Lebanon" },
@@ -40,6 +45,11 @@ export default function GoalsForm({
   const [isCountryOpen, setIsCountryOpen] = useState(false);
   const currentCountry = COUNTRIES.find((c) => c.name === country) ?? COUNTRIES[0];
 
+  const { data: profileData, isLoading, error } = useQuery<Profile>({
+    queryKey: ["profile"],
+    queryFn: () => axiosGet<Profile>(`/profile/${CURRENT_USER_ID}`),
+  });
+  console.log(profileData, isLoading, error);
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
       <Card
