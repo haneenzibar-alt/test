@@ -1,0 +1,82 @@
+[1mdiff --git a/prisma/schema.prisma b/prisma/schema.prisma[m
+[1mindex 6352aa8..6cbf83c 100644[m
+[1m--- a/prisma/schema.prisma[m
+[1m+++ b/prisma/schema.prisma[m
+[36m@@ -1,5 +1,6 @@[m
+ generator client {[m
+[31m-  provider = "prisma-client-js"[m
+[32m+[m[32m  provider = "prisma-client"[m
+[32m+[m[32m  output   = "../app/generated/prisma"[m
+ }[m
+ [m
+ datasource db {[m
+[36m@@ -173,7 +174,7 @@[m [mmodel CoachMessage {[m
+ }[m
+ [m
+ model Recipe {[m
+[31m-  id               String             @id[m
+[32m+[m[32m  id               String             @id @default(uuid())[m
+   name             String[m
+   description      String?[m
+   instructions     String[][m
+[36m@@ -187,17 +188,16 @@[m [mmodel Recipe {[m
+   isAiGenerated    Boolean            @default(false)[m
+   createdById      String?[m
+   createdAt        DateTime           @default(now())[m
+[31m-  updatedAt        DateTime[m
+[32m+[m[32m  updatedAt        DateTime           @updatedAt[m
+   country          String?[m
+   MealLog          MealLog[][m
+   MealPlanMeal     MealPlanMeal[][m
+   User             User?              @relation(fields: [createdById], references: [id])[m
+   RecipeIngredient RecipeIngredient[][m
+[31m-  SavedMeal        SavedMeal[][m
+ }[m
+ [m
+ model RecipeIngredient {[m
+[31m-  id       String @id[m
+[32m+[m[32m  id       String @id @default(uuid())[m
+   recipeId String[m
+   name     String[m
+   amount   Float[m
+[36m@@ -206,24 +206,31 @@[m [mmodel RecipeIngredient {[m
+ }[m
+ [m
+ model SavedMeal {[m
+[31m-  id        String   @id[m
+[31m-  userId    String[m
+[31m-  recipeId  String[m
+[31m-  createdAt DateTime @default(now())[m
+[31m-  Recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)[m
+[31m-  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+[32m+[m[32m  id          String   @id @default(uuid())[m
+[32m+[m[32m  userId      String[m
+[32m+[m[32m  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+[32m+[m[32m  name        String[m
+[32m+[m[32m  country     String?[m
+[32m+[m[32m  mealType    String?[m
+[32m+[m[32m  calories    Int[m
+[32m+[m[32m  protein     Float[m
+[32m+[m[32m  carbs       Float[m
+[32m+[m[32m  fat         Float[m
+[32m+[m[32m  ingredients String[][m
+[32m+[m[32m  imageUrl    String?[m
+[32m+[m[32m  createdAt   DateTime @default(now())[m
+ [m
+[31m-  @@unique([userId, recipeId])[m
+[32m+[m[32m  @@unique([userId, name])[m
+ }[m
+ [m
+ model User {[m
+[31m-  id                         String               @id[m
+[32m+[m[32m  id                         String               @id @default(uuid())[m
+   email                      String               @unique[m
+   passwordHash               String[m
+   name                       String?[m
+   role                       Role                 @default(USER)[m
+   createdAt                  DateTime             @default(now())[m
+[31m-  updatedAt                  DateTime[m
+[32m+[m[32m  updatedAt                  DateTime             @updatedAt[m
+   aiQueries                  AiRecommendation[][m
+   appointmentsAsClient       Appointment[]        @relation("ClientAppointments")[m
+   appointmentsAsNutritionist Appointment[]        @relation("NutritionistAppointments")[m

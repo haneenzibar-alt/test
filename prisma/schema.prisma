@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
 }
 
 datasource db {
@@ -206,12 +207,11 @@ model RecipeIngredient {
 }
 
 model SavedMeal {
-  id        String   @id
+  id        String   @id @default(cuid())
   userId    String
   recipeId  String
-  createdAt DateTime @default(now())
-  Recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  savedAt   DateTime @default(now())
 
   @@unique([userId, recipeId])
 }
@@ -233,7 +233,6 @@ model User {
   nutritionistProfile        NutritionistProfile?
   profile                    Profile?
   Recipe                     Recipe[]
-  SavedMeal                  SavedMeal[]
 }
 
 enum Role {

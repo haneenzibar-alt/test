@@ -1,17 +1,14 @@
-import { createSupabaseServerClient } from "./supabase/server";
+import { NextRequest } from "next/server";
 
-/**
- * بترجع الـ userId تبع المستخدم المسجل دخوله حالياً (Supabase Auth).
- * بترجع null إذا ما في مستخدم مسجل دخول (Unauthorized).
- *
- * ملاحظة: الـ userId يلي بترجعه هون هو نفسه auth.users.id بجدول Supabase،
- * فلازم يكون Foreign Key بجدول User بالـ Prisma Schema مطابق لنفس الـ id.
- */
-export async function getCurrentUserId(): Promise<string | null> {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+// ⚠️ TODO: مؤقت بدون auth حقيقي - بياخد userId من header أو query أو body
+// لما يجهز نظام تسجيل الدخول، بدّل هاد المحتوى بقراءة الـ userId من الـ session/cookie
+export function getUserId(req: NextRequest): string | null {
+  const fromHeader = req.headers.get("x-user-id");
+  if (fromHeader) return fromHeader;
 
-  return user?.id ?? null;
+  const { searchParams } = new URL(req.url);
+  const fromQuery = searchParams.get("userId");
+  if (fromQuery) return fromQuery;
+
+  return null;
 }
