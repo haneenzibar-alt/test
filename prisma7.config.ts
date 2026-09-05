@@ -7,6 +7,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"] || "file:./dev.db",
+    // للـ migrations لازم اتصال مباشر (بورت 5432)، مش رابط الـ pgbouncer pooler
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 });

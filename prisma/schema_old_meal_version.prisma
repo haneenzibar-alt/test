@@ -173,7 +173,7 @@ model CoachMessage {
 }
 
 model Recipe {
-  id               String             @id
+  id               String             @id @default(uuid())
   name             String
   description      String?
   instructions     String[]
@@ -184,10 +184,11 @@ model Recipe {
   carbs            Float
   fat              Float
   imageUrl         String?
+  allergens        String[]
   isAiGenerated    Boolean            @default(false)
   createdById      String?
   createdAt        DateTime           @default(now())
-  updatedAt        DateTime
+  updatedAt        DateTime           @updatedAt
   country          String?
   MealLog          MealLog[]
   MealPlanMeal     MealPlanMeal[]
@@ -197,7 +198,7 @@ model Recipe {
 }
 
 model RecipeIngredient {
-  id       String @id
+  id       String @id @default(uuid())
   recipeId String
   name     String
   amount   Float
@@ -206,7 +207,7 @@ model RecipeIngredient {
 }
 
 model SavedMeal {
-  id        String   @id
+  id        String   @id @default(uuid())
   userId    String
   recipeId  String
   createdAt DateTime @default(now())
@@ -217,13 +218,13 @@ model SavedMeal {
 }
 
 model User {
-  id                         String               @id
+  id                         String               @id @default(uuid())
   email                      String               @unique
   passwordHash               String
   name                       String?
   role                       Role                 @default(USER)
   createdAt                  DateTime             @default(now())
-  updatedAt                  DateTime
+  updatedAt                  DateTime             @updatedAt
   aiQueries                  AiRecommendation[]
   appointmentsAsClient       Appointment[]        @relation("ClientAppointments")
   appointmentsAsNutritionist Appointment[]        @relation("NutritionistAppointments")
