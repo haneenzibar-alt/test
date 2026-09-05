@@ -67,7 +67,7 @@ export default function Planner() {
     async function loadPlanner() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/planner?userId=${CURRENT_USER_ID}`);
+        const res = await fetch(`/api/Planner?userId=${CURRENT_USER_ID}`);
         if (!res.ok) {
           const err = await res.json();
           throw new Error(err.error || "Failed to load planner");

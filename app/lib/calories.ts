@@ -1,4 +1,4 @@
-import { ActivityLevel, Gender, HealthGoal } from "../generated/prisma/client";
+import { ActivityLevel, Gender, HealthGoal } from "../../generated/prisma/client";
 
 const ACTIVITY_MULTIPLIERS: Record<ActivityLevel, number> = {
   SEDENTARY: 1.2,

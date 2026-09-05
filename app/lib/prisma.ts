@@ -1,4 +1,4 @@
-import { PrismaClient } from "../generated/prisma/client";  //the object that knows how to run queries against your database
+import { PrismaClient } from "../../generated/prisma/client"; //the object that knows how to run queries against your database
 import { PrismaPg } from "@prisma/adapter-pg"; // New in prisma 7(no longer connected to database), it requires you to explicitly provide a "driver adapter."
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL }); // creating adapter This creates a small object whose only job is to know how to open a real connection to your Postgres database

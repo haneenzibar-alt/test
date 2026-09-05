@@ -1,0 +1,297 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Profile {
+  id                     String                @id @default(uuid())
+  userId                 String                @unique
+  name                   String?
+  age                    Int?
+  gender                 Gender?
+  height                 Float?
+  weight                 Float?
+  targetWeight           Float?
+  activityLevel          ActivityLevel         @default(SEDENTARY)
+  dietType               DietType              @default(STANDARD)
+  allergies              String[]
+  country                String?
+  healthGoal             HealthGoal?           @default(MAINTAIN_WEIGHT)
+  medicalConditions      String[]
+  dislikedFoods          String[]
+  mealsPerDay            Int                   @default(3)
+  weeklyWorkoutFrequency Int                   @default(0)
+  mealSourcePreference   MealSourcePreference? @default(COOK_AT_HOME)
+  calorieTarget          Int?
+  proteinTarget          Float?
+  carbTarget             Float?
+  fatTarget              Float?
+  updatedAt              DateTime              @updatedAt
+  user                   User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model NutritionistProfile {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  specialty    String
+  bio          String?
+  credentials  String[]
+  hourlyRate   Float?
+  availability String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MealPlan {
+  id            String         @id @default(uuid())
+  userId        String
+  name          String
+  description   String?
+  startDate     DateTime
+  endDate       DateTime
+  isAiGenerated Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meals         MealPlanMeal[]
+}
+
+model MealPlanMeal {
+  id         String   @id @default(uuid())
+  mealPlanId String
+  recipeId   String
+  dayOfWeek  Int
+  mealType   MealType
+  mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  Recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model DailyLog {
+  id                   String    @id @default(uuid())
+  userId               String
+  date                 DateTime
+  waterIntake          Int       @default(0)
+  weight               Float?
+  activeCaloriesBurned Int       @default(0)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mealLogs             MealLog[]
+
+  @@unique([userId, date])
+}
+
+model MealLog {
+  id             String   @id @default(uuid())
+  dailyLogId     String
+  mealType       MealType
+  recipeId       String?
+  customFoodName String?
+  calories       Int      @default(0)
+  protein        Float    @default(0)
+  carbs          Float    @default(0)
+  fat            Float    @default(0)
+  servingSize    Float    @default(1.0)
+  dailyLog       DailyLog @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
+  Recipe         Recipe?  @relation(fields: [recipeId], references: [id])
+}
+
+model Restaurant {
+  id        String               @id @default(uuid())
+  name      String
+  country   String?
+  cuisine   String?
+  address   String?
+  latitude  Float?
+  longitude Float?
+  rating    Float?
+  imageUrl  String?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  menuItems RestaurantMenuItem[]
+}
+
+model RestaurantMenuItem {
+  id           String     @id @default(uuid())
+  restaurantId String
+  name         String
+  calories     Int?
+  protein      Float?
+  carbs        Float?
+  fat          Float?
+  price        Float?
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+}
+
+model Appointment {
+  id             String            @id @default(uuid())
+  clientId       String
+  nutritionistId String
+  scheduledAt    DateTime
+  duration       Int               @default(30)
+  status         AppointmentStatus @default(PENDING)
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  client         User              @relation("ClientAppointments", fields: [clientId], references: [id], onDelete: Cascade)
+  nutritionist   User              @relation("NutritionistAppointments", fields: [nutritionistId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([nutritionistId])
+}
+
+model AiRecommendation {
+  id        String   @id @default(uuid())
+  userId    String
+  prompt    String
+  response  Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CoachSession {
+  id        String         @id @default(uuid())
+  userId    String
+  title     String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  messages  CoachMessage[]
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CoachMessage {
+  id        String       @id @default(uuid())
+  sessionId String
+  role      String
+  content   String
+  createdAt DateTime     @default(now())
+  session   CoachSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model Recipe {
+  id               String             @id
+  name             String
+  description      String?
+  instructions     String[]
+  prepTime         Int?
+  cookTime         Int?
+  calories         Int
+  protein          Float
+  carbs            Float
+  fat              Float
+  imageUrl         String?
+  isAiGenerated    Boolean            @default(false)
+  createdById      String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime
+  country          String?
+  MealLog          MealLog[]
+  MealPlanMeal     MealPlanMeal[]
+  User             User?              @relation(fields: [createdById], references: [id])
+  RecipeIngredient RecipeIngredient[]
+  SavedMeal        SavedMeal[]
+}
+
+model RecipeIngredient {
+  id       String @id
+  recipeId String
+  name     String
+  amount   Float
+  unit     String
+  Recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model SavedMeal {
+  id        String   @id
+  userId    String
+  recipeId  String
+  createdAt DateTime @default(now())
+  Recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, recipeId])
+}
+
+model User {
+  id                         String               @id
+  email                      String               @unique
+  passwordHash               String
+  name                       String?
+  role                       Role                 @default(USER)
+  createdAt                  DateTime             @default(now())
+  updatedAt                  DateTime
+  aiQueries                  AiRecommendation[]
+  appointmentsAsClient       Appointment[]        @relation("ClientAppointments")
+  appointmentsAsNutritionist Appointment[]        @relation("NutritionistAppointments")
+  coachSessions              CoachSession[]
+  dailyLogs                  DailyLog[]
+  mealPlans                  MealPlan[]
+  nutritionistProfile        NutritionistProfile?
+  profile                    Profile?
+  Recipe                     Recipe[]
+  SavedMeal                  SavedMeal[]
+}
+
+enum Role {
+  USER
+  ADMIN
+  NUTRITIONIST
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHTLY_ACTIVE
+  MODERATELY_ACTIVE
+  VERY_ACTIVE
+  EXTRA_ACTIVE
+}
+
+enum DietType {
+  STANDARD
+  VEGETARIAN
+  VEGAN
+  KETO
+  PALEO
+  MEDITERRANEAN
+  PESCATARIAN
+  GLUTEN_FREE
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum HealthGoal {
+  LOSE_WEIGHT
+  MAINTAIN_WEIGHT
+  GAIN_WEIGHT
+}
+
+enum MealSourcePreference {
+  COOK_AT_HOME
+  ORDER_DELIVERY
+  EAT_OUTSIDE
+  MIX_OF_ALL
+}
