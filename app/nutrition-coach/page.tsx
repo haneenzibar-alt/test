@@ -1,39 +1,60 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { axiosGet, axiosPost, ApiError } from "@/lib/axios";
+import { Profile, User } from "@/generated/prisma/client";
 
-const profile = {
-  name: "Sarah Hassan",
-  age: 25,
-  weight: 65,
-  height: 165,
-  country: "Lebanon",
-  goal: "Maintain Weight",
-  activityLevel: "Moderately Active",
-  workoutFrequency: 3,
-  mealsPerDay: 3,
-  allergies: ["Dairy", "Nuts"],
-  medicalConditions: [] as string[],
-  dailyCalories: 1847,
-  proteinTarget: 120,
-  carbsTarget: 210,
-  fatTarget: 60,
-  bmi: 22.4,
-  bmiCategory: "Normal weight",
+const CURRENT_USER_ID = "123";
+
+type ProfileWithUser = Profile & { user: User };
+
+const goalLabelMap: Record<string, string> = {
+  LOSE_WEIGHT: "Lose Weight",
+  MAINTAIN_WEIGHT: "Maintain Weight",
+  GAIN_WEIGHT: "Gain Weight",
 };
 
-const firstName = profile.name.split(" ")[0];
+const activityMultiplierMap: Record<string, number> = {
+  SEDENTARY: 1.2,
+  LIGHTLY_ACTIVE: 1.375,
+  MODERATELY_ACTIVE: 1.55,
+  VERY_ACTIVE: 1.725,
+  EXTRA_ACTIVE: 1.9,
+};
+
+const activityLabelMap: Record<string, string> = {
+  SEDENTARY: "Sedentary",
+  LIGHTLY_ACTIVE: "Lightly Active",
+  MODERATELY_ACTIVE: "Moderately Active",
+  VERY_ACTIVE: "Very Active",
+  EXTRA_ACTIVE: "Extra Active",
+};
+
+const genderLabelMap: Record<string, string> = {
+  MALE: "Male",
+  FEMALE: "Female",
+  OTHER: "Other",
+  PREFER_NOT_TO_SAY: "Prefer not to say",
+};
+
+const mealSourceLabelMap: Record<string, string> = {
+  COOK_AT_HOME: "Cook at Home",
+  ORDER_DELIVERY: "Order Delivery",
+  EAT_OUTSIDE: "Eat Outside",
+  MIX_OF_ALL: "Mix of All",
+};
+
+// Mirrors the server route's shape (app/api/nutrition-coach/route.ts) —
+// keep these two in sync if the route's contract changes.
+const MAX_MESSAGES = 20;
+
+type ApiChatMessage = { role: "user" | "assistant"; content: string };
 
 type ChatMessage = {
   id: number;
   role: "ai" | "user";
   text: string;
-};
-
-const initialMessage: ChatMessage = {
-  id: 1,
-  role: "ai",
-  text: `Hello ${firstName}! I'm your FitPlate Nutrition Coach.\n\nI know your health profile and I'm here to give you personalized guidance. Ask me about your ${profile.dailyCalories} kcal daily plan, meal ideas from ${profile.country}, macros, workout nutrition, hydration, or health conditions.`,
 };
 
 const quickPrompts = [
@@ -45,114 +66,253 @@ const quickPrompts = [
   "How much water?",
 ];
 
-function buildResponse(input: string) {
-  const text = input.toLowerCase();
+// All the numbers the coach talks about, derived from the real profile —
+// same formulas used on the Profile page, so the two stay in sync.
+function deriveCoachProfile(profile: ProfileWithUser) {
+  const firstName = profile.user?.name?.split(" ")[0] ?? "there";
 
-  if (
-    /\bhi\b/.test(text) ||
-    text.includes("hello") ||
-    /\bhey\b/.test(text) ||
-    text.includes("marhaba")
-  ) {
-    return `Hello ${firstName}! I'm your FitPlate Nutrition Coach. How can I help you today?`;
-  }
+  const heightM = profile.height ? profile.height / 100 : 0;
+  const bmi =
+    profile.weight && heightM
+      ? Number((profile.weight / (heightM * heightM)).toFixed(1))
+      : null;
+  const bmiCategory =
+    bmi === null
+      ? "unknown"
+      : bmi < 18.5
+      ? "Underweight"
+      : bmi < 25
+      ? "Normal weight"
+      : bmi < 30
+      ? "Overweight"
+      : "Obese";
 
-  if (
-    text.includes("allergy") ||
-    text.includes("allergies") ||
-    text.includes("intolerant")
-  ) {
-    return `Your recorded allergies are ${profile.allergies.join(" and ")}. Meal suggestions should avoid these ingredients.`;
-  }
+  const bmr =
+    profile.weight && profile.height
+      ? profile.gender === "MALE"
+        ? 10 * profile.weight + 6.25 * profile.height - 5 * (profile.age ?? 0) + 5
+        : 10 * profile.weight + 6.25 * profile.height - 5 * (profile.age ?? 0) - 161
+      : 0;
 
-  if (text.includes("water") || text.includes("hydration")) {
-    return `Based on your ${profile.weight} kg weight, aim for about 2.1 liters of water per day, plus extra water around workouts.`;
-  }
+  const activityMultiplier = profile.activityLevel
+    ? activityMultiplierMap[profile.activityLevel]
+    : 1.2;
 
-  if (
-    text.includes("workout") ||
-    text.includes("gym") ||
-    text.includes("exercise") ||
-    text.includes("training")
-  ) {
-    return "Before training, choose light carbohydrates. After training, include a protein-rich meal such as grilled chicken, labneh, or lentils.";
-  }
+  const tdee = bmr * activityMultiplier;
 
-  if (
-    text.includes("meal") ||
-    text.includes("food") ||
-    text.includes("breakfast") ||
-    text.includes("lunch") ||
-    text.includes("dinner") ||
-    text.includes("suggest") ||
-    text.includes("recommend")
-  ) {
-    return `Here are simple ${profile.country}-based meal ideas:\n- Grilled Chicken Bowl\n- Lentil Mujadara Bowl\n- Lebanese Breakfast Plate`;
-  }
+  const dailyCalories =
+    profile.calorieTarget ??
+    Math.round(
+      profile.healthGoal === "LOSE_WEIGHT"
+        ? tdee - 500
+        : profile.healthGoal === "GAIN_WEIGHT"
+        ? tdee + 500
+        : tdee
+    );
 
-  if (text.includes("macro") || text.includes("carbs") || text.includes("fat")) {
-    return `Your daily macros are:\nProtein: ${profile.proteinTarget}g\nCarbs: ${profile.carbsTarget}g\nFat: ${profile.fatTarget}g`;
-  }
+  const proteinTarget = profile.proteinTarget ?? Math.round((dailyCalories * 0.3) / 4);
+  const carbsTarget = profile.carbTarget ?? Math.round((dailyCalories * 0.45) / 4);
+  const fatTarget = profile.fatTarget ?? Math.round((dailyCalories * 0.25) / 9);
 
-  if (text.includes("bmi") || text.includes("weight status")) {
-    return `Your BMI is ${profile.bmi}, classified as ${profile.bmiCategory}.`;
-  }
+  return {
+    firstName,
+    weight: profile.weight ?? 0,
+    country: profile.country ?? "your region",
+    goal: profile.healthGoal ? goalLabelMap[profile.healthGoal] : "your goal",
+    mealsPerDay: profile.mealsPerDay ?? 3,
+    allergies: profile.allergies ?? [],
+    dailyCalories,
+    proteinTarget,
+    carbsTarget,
+    fatTarget,
+    bmi,
+    bmiCategory,
+  };
+}
 
-  if (text.includes("protein")) {
-    return `Your daily protein target is ${profile.proteinTarget}g/day, which is about 40g per meal across ${profile.mealsPerDay} meals.`;
-  }
+type CoachProfile = ReturnType<typeof deriveCoachProfile>;
 
-  if (
-    text.includes("calorie") ||
-    text.includes("kcal") ||
-    text.includes("energy")
-  ) {
-    return `Your daily calorie target is ${profile.dailyCalories} kcal/day. This is based on your current profile and ${profile.goal} goal.`;
-  }
+// CHAT_SYSTEM_PROMPT (lib/openai.ts) explicitly tells the model it has no
+// live DB access unless profile details are included in the conversation
+// itself — so we build that context here and attach it to each outgoing
+// user turn (not shown in the UI, just sent to the API).
+function buildProfileContext(profile: ProfileWithUser, derived: CoachProfile) {
+  const lines = [
+    `Name: ${profile.user?.name ?? "unknown"}`,
+    `Age: ${profile.age ?? "unknown"}`,
+    `Gender: ${profile.gender ? genderLabelMap[profile.gender] : "unknown"}`,
+    `Height: ${profile.height ?? "unknown"} cm`,
+    `Weight: ${profile.weight ?? "unknown"} kg`,
+    `Target weight: ${profile.targetWeight ?? "unknown"} kg`,
+    `Country/cuisine: ${derived.country}`,
+    `Health goal: ${derived.goal}`,
+    `Activity level: ${profile.activityLevel ? activityLabelMap[profile.activityLevel] : "unknown"}`,
+    `Diet type: ${profile.dietType ?? "unknown"}`,
+    `Meals per day: ${derived.mealsPerDay}`,
+    `Meal source preference: ${
+      profile.mealSourcePreference ? mealSourceLabelMap[profile.mealSourcePreference] : "unknown"
+    }`,
+    `Allergies: ${derived.allergies.length ? derived.allergies.join(", ") : "none reported"}`,
+    `Medical conditions: ${
+      profile.medicalConditions.length ? profile.medicalConditions.join(", ") : "none reported"
+    }`,
+    `Disliked foods: ${
+      profile.dislikedFoods.length ? profile.dislikedFoods.join(", ") : "none reported"
+    }`,
+    `Daily calorie target: ${derived.dailyCalories} kcal`,
+    `Protein target: ${derived.proteinTarget} g`,
+    `Carb target: ${derived.carbsTarget} g`,
+    `Fat target: ${derived.fatTarget} g`,
+    `BMI: ${derived.bmi ?? "unknown"} (${derived.bmiCategory})`,
+  ];
 
-  return `Based on your profile, your daily target is ${profile.dailyCalories} kcal with ${profile.proteinTarget}g protein. Ask me about calories, macros, meals, workouts, BMI, hydration, or allergies.`;
+  return `[FitPlate user profile — use this to personalize your answer, don't repeat it back verbatim]\n${lines.join("\n")}`;
 }
 
 export default function NutritionCoachPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>([initialMessage]);
+  const {
+    data: profileData,
+    isLoading,
+    error,
+  } = useQuery<ProfileWithUser | null>({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      try {
+        return await axiosGet<ProfileWithUser>(`/profile/${CURRENT_USER_ID}`);
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 404) {
+          return null;
+        }
+        throw err;
+      }
+    },
+  });
+
+  // Only the conversation the user actually builds lives in state — the
+  // greeting is derived straight from profileData at render time below, so
+  // there's no effect-triggered setState (and no extra render) needed.
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const nextId = useRef(2);
 
-  function sendMessage(text: string) {
+  const greeting: ChatMessage | null = profileData
+    ? (() => {
+        const derived = deriveCoachProfile(profileData);
+        return {
+          id: 0,
+          role: "ai",
+          text: `Hello ${derived.firstName}! I'm your FitPlate Nutrition Coach.\n\nI know your health profile and I'm here to give you personalized guidance. Ask me about your ${derived.dailyCalories} kcal daily plan, meal ideas from ${derived.country}, macros, workout nutrition, hydration, or health conditions.`,
+        };
+      })()
+    : null;
+
+  const displayedMessages = greeting ? [greeting, ...messages] : messages;
+
+  async function sendMessage(text: string) {
     const trimmed = text.trim();
 
-    if (!trimmed || isTyping) {
+    if (!trimmed || isTyping || !profileData) {
       return;
     }
 
-    const userMessage = {
+    const userMessage: ChatMessage = {
       id: nextId.current,
-      role: "user" as const,
+      role: "user",
       text: trimmed,
     };
     nextId.current += 1;
 
-    setMessages((current) => [...current, userMessage]);
+    const conversation = [...messages, userMessage];
+    setMessages(conversation);
     setInput("");
     setIsTyping(true);
 
-    window.setTimeout(() => {
-      const aiMessage = {
+    try {
+      const derived = deriveCoachProfile(profileData);
+      const profileContext = buildProfileContext(profileData, derived);
+
+      // Convert to the API's { role: "user" | "assistant", content }
+      // shape. Only the *current* turn gets the profile context prepended
+      // — earlier turns are sent as the user actually typed them.
+      const apiMessages: ApiChatMessage[] = conversation
+        .slice(-MAX_MESSAGES)
+        .map((m, index, arr) => ({
+          role: m.role === "ai" ? "assistant" : "user",
+          content:
+            index === arr.length - 1
+              ? `${profileContext}\n\nUser question: ${m.text}`
+              : m.text,
+        }));
+
+      const { reply } = await axiosPost<{ messages: ApiChatMessage[] }, { reply: string }>(
+        "/nutrition-coach",
+        { messages: apiMessages }
+      );
+
+      const aiMessage: ChatMessage = {
         id: nextId.current,
-        role: "ai" as const,
-        text: buildResponse(trimmed),
+        role: "ai",
+        text: reply || "Sorry, I couldn't come up with a reply just now.",
       };
       nextId.current += 1;
-
       setMessages((current) => [...current, aiMessage]);
+    } catch (err) {
+      const aiMessage: ChatMessage = {
+        id: nextId.current,
+        role: "ai",
+        text:
+          err instanceof ApiError
+            ? `Sorry, something went wrong: ${err.message}`
+            : "Sorry, I'm having trouble connecting right now. Please try again in a moment.",
+      };
+      nextId.current += 1;
+      setMessages((current) => [...current, aiMessage]);
+    } finally {
       setIsTyping(false);
-    }, 650);
+    }
   }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     sendMessage(input);
+  }
+
+  function handleClearChat() {
+    setMessages([]);
+    setInput("");
+    setIsTyping(false);
+    nextId.current = 2;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <p className="text-sm text-gray-500">Loading your profile...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <p className="text-sm text-red-500">
+          {error instanceof Error ? error.message : "Something went wrong"}
+        </p>
+      </div>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 px-4 text-center">
+        <p className="text-4xl">🥗</p>
+        <p className="text-sm text-gray-500">
+          Complete your profile on the Home page first so your Nutrition Coach
+          can personalize its guidance.
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -175,12 +335,7 @@ export default function NutritionCoachPage() {
           </div>
           <button
             type="button"
-            onClick={() => {
-              setMessages([initialMessage]);
-              setInput("");
-              setIsTyping(false);
-              nextId.current = 2;
-            }}
+            onClick={handleClearChat}
             className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-medium text-white"
           >
             Clear Chat
@@ -190,7 +345,7 @@ export default function NutritionCoachPage() {
 
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-4 md:px-6">
         <div className="flex-1 space-y-3">
-          {messages.map((message) => (
+          {displayedMessages.map((message) => (
             <div
               key={message.id}
               className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}

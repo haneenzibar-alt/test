@@ -36,19 +36,14 @@ export async function POST(
   }
 
   try {
-    await prisma.user.upsert({
-      where: { id },
-      update: { name },
-      create: {
-        id,
-        name,
-        email: `${id}@placeholder.fitplate.local`,
-        passwordHash: "placeholder",
-      },
-    });
+    
+    if (name !== undefined) {
+      await prisma.user.update({
+        where: { id },
+        data: { name },
+      });
+    }
 
-    // Create only. If a profile already exists for this userId, Prisma
-    // throws a P2002 unique constraint error, surfaced as 409 below.
     const profile = await prisma.profile.create({
       data: {
         userId: id,
@@ -58,13 +53,13 @@ export async function POST(
 
     return success(profile, 201);
   } catch (error: unknown) {
-    if (
-      error &&
-      typeof error === "object" &&
-      "code" in error &&
-      error.code === "P2002"
-    ) {
-      return fail("Profile already exists for this user", 409);
+    if (error && typeof error === "object" && "code" in error) {
+      if (error.code === "P2025") {
+        return fail("User not found", 404);
+      }
+      if (error.code === "P2002") {
+        return fail("Profile already exists for this user", 409);
+      }
     }
 
     console.error(error);
