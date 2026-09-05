@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
 }
 
 datasource db {
@@ -173,7 +174,7 @@ model CoachMessage {
 }
 
 model Recipe {
-  id               String             @id @default(uuid())
+  id               String             @id
   name             String
   description      String?
   instructions     String[]
@@ -184,11 +185,10 @@ model Recipe {
   carbs            Float
   fat              Float
   imageUrl         String?
-  allergens        String[]
   isAiGenerated    Boolean            @default(false)
   createdById      String?
   createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  updatedAt        DateTime
   country          String?
   MealLog          MealLog[]
   MealPlanMeal     MealPlanMeal[]
@@ -198,7 +198,7 @@ model Recipe {
 }
 
 model RecipeIngredient {
-  id       String @id @default(uuid())
+  id       String @id
   recipeId String
   name     String
   amount   Float
@@ -207,7 +207,7 @@ model RecipeIngredient {
 }
 
 model SavedMeal {
-  id        String   @id @default(uuid())
+  id        String   @id
   userId    String
   recipeId  String
   createdAt DateTime @default(now())
@@ -218,13 +218,13 @@ model SavedMeal {
 }
 
 model User {
-  id                         String               @id @default(uuid())
+  id                         String               @id
   email                      String               @unique
   passwordHash               String
   name                       String?
   role                       Role                 @default(USER)
   createdAt                  DateTime             @default(now())
-  updatedAt                  DateTime             @updatedAt
+  updatedAt                  DateTime
   aiQueries                  AiRecommendation[]
   appointmentsAsClient       Appointment[]        @relation("ClientAppointments")
   appointmentsAsNutritionist Appointment[]        @relation("NutritionistAppointments")
