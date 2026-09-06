@@ -174,27 +174,25 @@ model CoachMessage {
 }
 
 model Recipe {
-  id            String   @id
-  name          String
-  description   String?
-  instructions  String[]
-  prepTime      Int?
-  cookTime      Int?
-  calories      Int
-  protein       Float
-  carbs         Float
-  fat           Float
-  imageUrl      String?
-  isAiGenerated Boolean  @default(false)
-  createdById   String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime
-  country       String?
-
-  // تحديد الهدف والنظام الغذائي المناسب للوجبة
-  goal     HealthGoal?
-  dietType DietType?
-
+  id               String             @id
+  name             String
+  description      String?
+  instructions     String[]
+  prepTime         Int?
+  cookTime         Int?
+  calories         Int
+  protein          Float
+  carbs            Float
+  fat              Float
+  imageUrl         String?
+  isAiGenerated    Boolean            @default(false)
+  createdById      String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime
+  country          String?
+  dietType         DietType?
+  goal             HealthGoal?
+  mealType         MealType? // <-- add this line
   MealLog          MealLog[]
   MealPlanMeal     MealPlanMeal[]
   User             User?              @relation(fields: [createdById], references: [id])
@@ -215,8 +213,8 @@ model SavedMeal {
   id        String   @id @default(cuid())
   userId    String
   recipeId  String
-  Recipe    Recipe   @relation(fields: [recipeId], references: [id])
   createdAt DateTime @default(now())
+  Recipe    Recipe   @relation(fields: [recipeId], references: [id])
 
   @@unique([userId, recipeId])
 }

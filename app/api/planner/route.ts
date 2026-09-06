@@ -10,6 +10,28 @@ const MEAL_TYPES = [
   "SNACK",
 ] as const;
 
+type RecipeRow = Awaited<ReturnType<typeof prisma.recipe.findMany>>[number];
+
+/**
+ * Returns recipes that fit a given meal slot (e.g. BREAKFAST).
+ * Prefers recipes explicitly tagged with that mealType. If none exist,
+ * falls back to recipes with no mealType set (untagged, usable anywhere).
+ * As a last resort (bad data / empty catalog for that slot), falls back
+ * to the full recipe list so a day is never left with a missing meal.
+ */
+function getPoolForMealType(
+  allRecipes: RecipeRow[],
+  mealType: (typeof MEAL_TYPES)[number]
+): RecipeRow[] {
+  const tagged = allRecipes.filter((r) => r.mealType === mealType);
+  if (tagged.length > 0) return tagged;
+
+  const untagged = allRecipes.filter((r) => r.mealType === null);
+  if (untagged.length > 0) return untagged;
+
+  return allRecipes;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -38,6 +60,7 @@ export async function GET(request: NextRequest) {
           fat: 65,
         },
         planGenerated: false,
+        hasProfile: false,
         days: [],
       });
     }
@@ -93,37 +116,31 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         dailyTargets,
         planGenerated: false,
+        hasProfile: true,
         days: [],
       });
     }
 
     /*
-     * We don't want the same recipe repeated in one day.
-     *
-     * We shuffle the recipes so the planner doesn't always
-     * show the exact same meals.
+     * Shuffle once so the planner doesn't always show the exact same
+     * meals in the exact same order.
      */
     const shuffledRecipes = [...recipes].sort(() => Math.random() - 0.5);
 
     /*
-     * We use one recipe only once per day.
-     *
-     * Example:
-     *
-     * Breakfast -> recipe 1
-     * Lunch     -> recipe 2
-     * Dinner    -> recipe 3
-     * Snack     -> recipe 4
+     * Build a separate pool per meal slot (BREAKFAST/LUNCH/DINNER/SNACK)
+     * so a dinner-style dish like Kafta never lands in the Breakfast slot.
      */
+    const poolByMealType = Object.fromEntries(
+      MEAL_TYPES.map((mt) => [mt, getPoolForMealType(shuffledRecipes, mt)])
+    ) as Record<(typeof MEAL_TYPES)[number], RecipeRow[]>;
 
     const days = Array.from({ length: 7 }, (_, dayOfWeek) => {
-      const meals = MEAL_TYPES.map((mealType, index) => {
-        // Rotate through recipes for different days
-        const recipeIndex =
-          (dayOfWeek * MEAL_TYPES.length + index) %
-          shuffledRecipes.length;
-
-        const recipe = shuffledRecipes[recipeIndex];
+      const meals = MEAL_TYPES.map((mealType) => {
+        const pool = poolByMealType[mealType];
+        // Rotate through this slot's own pool across days
+        const recipeIndex = dayOfWeek % pool.length;
+        const recipe = pool[recipeIndex];
 
         return {
           planMealId: `${dayOfWeek}-${mealType}-${recipe.id}`,
@@ -142,6 +159,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       dailyTargets,
       planGenerated: true,
+      hasProfile: true,
       days,
     });
   } catch (error) {

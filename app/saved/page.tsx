@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-// ⚠️ TODO: بدّلها لما يجهز نظام تسجيل الدخول الحقيقي
+
 const CURRENT_USER_ID = "123";
 
 export default async function SavedMealsPage() {
@@ -28,7 +28,7 @@ orderBy: {
           save your favorites.
         </p>
         <Link
-          href="/planner"
+          href="/Planner"
           className="px-6 py-3 rounded-full bg-emerald-100 text-emerald-800 font-semibold hover:bg-emerald-200 transition"
         >
           Go to Planner

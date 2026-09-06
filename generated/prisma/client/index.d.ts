@@ -16539,8 +16539,9 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     country: string | null
-    goal: $Enums.HealthGoal | null
     dietType: $Enums.DietType | null
+    goal: $Enums.HealthGoal | null
+    mealType: $Enums.MealType | null
   }
 
   export type RecipeMaxAggregateOutputType = {
@@ -16559,8 +16560,9 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     country: string | null
-    goal: $Enums.HealthGoal | null
     dietType: $Enums.DietType | null
+    goal: $Enums.HealthGoal | null
+    mealType: $Enums.MealType | null
   }
 
   export type RecipeCountAggregateOutputType = {
@@ -16580,8 +16582,9 @@ export namespace Prisma {
     createdAt: number
     updatedAt: number
     country: number
-    goal: number
     dietType: number
+    goal: number
+    mealType: number
     _all: number
   }
 
@@ -16620,8 +16623,9 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     country?: true
-    goal?: true
     dietType?: true
+    goal?: true
+    mealType?: true
   }
 
   export type RecipeMaxAggregateInputType = {
@@ -16640,8 +16644,9 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     country?: true
-    goal?: true
     dietType?: true
+    goal?: true
+    mealType?: true
   }
 
   export type RecipeCountAggregateInputType = {
@@ -16661,8 +16666,9 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     country?: true
-    goal?: true
     dietType?: true
+    goal?: true
+    mealType?: true
     _all?: true
   }
 
@@ -16769,8 +16775,9 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     country: string | null
-    goal: $Enums.HealthGoal | null
     dietType: $Enums.DietType | null
+    goal: $Enums.HealthGoal | null
+    mealType: $Enums.MealType | null
     _count: RecipeCountAggregateOutputType | null
     _avg: RecipeAvgAggregateOutputType | null
     _sum: RecipeSumAggregateOutputType | null
@@ -16809,8 +16816,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     country?: boolean
-    goal?: boolean
     dietType?: boolean
+    goal?: boolean
+    mealType?: boolean
     MealLog?: boolean | Recipe$MealLogArgs<ExtArgs>
     MealPlanMeal?: boolean | Recipe$MealPlanMealArgs<ExtArgs>
     User?: boolean | Recipe$UserArgs<ExtArgs>
@@ -16836,8 +16844,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     country?: boolean
-    goal?: boolean
     dietType?: boolean
+    goal?: boolean
+    mealType?: boolean
     User?: boolean | Recipe$UserArgs<ExtArgs>
   }, ExtArgs["result"]["recipe"]>
 
@@ -16858,8 +16867,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     country?: boolean
-    goal?: boolean
     dietType?: boolean
+    goal?: boolean
+    mealType?: boolean
     User?: boolean | Recipe$UserArgs<ExtArgs>
   }, ExtArgs["result"]["recipe"]>
 
@@ -16880,11 +16890,12 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     country?: boolean
-    goal?: boolean
     dietType?: boolean
+    goal?: boolean
+    mealType?: boolean
   }
 
-  export type RecipeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "instructions" | "prepTime" | "cookTime" | "calories" | "protein" | "carbs" | "fat" | "imageUrl" | "isAiGenerated" | "createdById" | "createdAt" | "updatedAt" | "country" | "goal" | "dietType", ExtArgs["result"]["recipe"]>
+  export type RecipeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "instructions" | "prepTime" | "cookTime" | "calories" | "protein" | "carbs" | "fat" | "imageUrl" | "isAiGenerated" | "createdById" | "createdAt" | "updatedAt" | "country" | "dietType" | "goal" | "mealType", ExtArgs["result"]["recipe"]>
   export type RecipeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     MealLog?: boolean | Recipe$MealLogArgs<ExtArgs>
     MealPlanMeal?: boolean | Recipe$MealPlanMealArgs<ExtArgs>
@@ -16926,8 +16937,9 @@ export namespace Prisma {
       createdAt: Date
       updatedAt: Date
       country: string | null
-      goal: $Enums.HealthGoal | null
       dietType: $Enums.DietType | null
+      goal: $Enums.HealthGoal | null
+      mealType: $Enums.MealType | null
     }, ExtArgs["result"]["recipe"]>
     composites: {}
   }
@@ -17372,8 +17384,9 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Recipe", 'DateTime'>
     readonly updatedAt: FieldRef<"Recipe", 'DateTime'>
     readonly country: FieldRef<"Recipe", 'String'>
-    readonly goal: FieldRef<"Recipe", 'HealthGoal'>
     readonly dietType: FieldRef<"Recipe", 'DietType'>
+    readonly goal: FieldRef<"Recipe", 'HealthGoal'>
+    readonly mealType: FieldRef<"Recipe", 'MealType'>
   }
     
 
@@ -21580,8 +21593,9 @@ export namespace Prisma {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     country: 'country',
+    dietType: 'dietType',
     goal: 'goal',
-    dietType: 'dietType'
+    mealType: 'mealType'
   };
 
   export type RecipeScalarFieldEnum = (typeof RecipeScalarFieldEnum)[keyof typeof RecipeScalarFieldEnum]
@@ -22808,8 +22822,9 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Recipe"> | Date | string
     updatedAt?: DateTimeFilter<"Recipe"> | Date | string
     country?: StringNullableFilter<"Recipe"> | string | null
-    goal?: EnumHealthGoalNullableFilter<"Recipe"> | $Enums.HealthGoal | null
     dietType?: EnumDietTypeNullableFilter<"Recipe"> | $Enums.DietType | null
+    goal?: EnumHealthGoalNullableFilter<"Recipe"> | $Enums.HealthGoal | null
+    mealType?: EnumMealTypeNullableFilter<"Recipe"> | $Enums.MealType | null
     MealLog?: MealLogListRelationFilter
     MealPlanMeal?: MealPlanMealListRelationFilter
     User?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -22834,8 +22849,9 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     country?: SortOrderInput | SortOrder
-    goal?: SortOrderInput | SortOrder
     dietType?: SortOrderInput | SortOrder
+    goal?: SortOrderInput | SortOrder
+    mealType?: SortOrderInput | SortOrder
     MealLog?: MealLogOrderByRelationAggregateInput
     MealPlanMeal?: MealPlanMealOrderByRelationAggregateInput
     User?: UserOrderByWithRelationInput
@@ -22863,8 +22879,9 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Recipe"> | Date | string
     updatedAt?: DateTimeFilter<"Recipe"> | Date | string
     country?: StringNullableFilter<"Recipe"> | string | null
-    goal?: EnumHealthGoalNullableFilter<"Recipe"> | $Enums.HealthGoal | null
     dietType?: EnumDietTypeNullableFilter<"Recipe"> | $Enums.DietType | null
+    goal?: EnumHealthGoalNullableFilter<"Recipe"> | $Enums.HealthGoal | null
+    mealType?: EnumMealTypeNullableFilter<"Recipe"> | $Enums.MealType | null
     MealLog?: MealLogListRelationFilter
     MealPlanMeal?: MealPlanMealListRelationFilter
     User?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -22889,8 +22906,9 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     country?: SortOrderInput | SortOrder
-    goal?: SortOrderInput | SortOrder
     dietType?: SortOrderInput | SortOrder
+    goal?: SortOrderInput | SortOrder
+    mealType?: SortOrderInput | SortOrder
     _count?: RecipeCountOrderByAggregateInput
     _avg?: RecipeAvgOrderByAggregateInput
     _max?: RecipeMaxOrderByAggregateInput
@@ -22918,8 +22936,9 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Recipe"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Recipe"> | Date | string
     country?: StringNullableWithAggregatesFilter<"Recipe"> | string | null
-    goal?: EnumHealthGoalNullableWithAggregatesFilter<"Recipe"> | $Enums.HealthGoal | null
     dietType?: EnumDietTypeNullableWithAggregatesFilter<"Recipe"> | $Enums.DietType | null
+    goal?: EnumHealthGoalNullableWithAggregatesFilter<"Recipe"> | $Enums.HealthGoal | null
+    mealType?: EnumMealTypeNullableWithAggregatesFilter<"Recipe"> | $Enums.MealType | null
   }
 
   export type RecipeIngredientWhereInput = {
@@ -24138,8 +24157,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
     MealLog?: MealLogCreateNestedManyWithoutRecipeInput
     MealPlanMeal?: MealPlanMealCreateNestedManyWithoutRecipeInput
     User?: UserCreateNestedOneWithoutRecipeInput
@@ -24164,8 +24184,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
     MealLog?: MealLogUncheckedCreateNestedManyWithoutRecipeInput
     MealPlanMeal?: MealPlanMealUncheckedCreateNestedManyWithoutRecipeInput
     RecipeIngredient?: RecipeIngredientUncheckedCreateNestedManyWithoutRecipeInput
@@ -24188,8 +24209,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
     MealLog?: MealLogUpdateManyWithoutRecipeNestedInput
     MealPlanMeal?: MealPlanMealUpdateManyWithoutRecipeNestedInput
     User?: UserUpdateOneWithoutRecipeNestedInput
@@ -24214,8 +24236,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
     MealLog?: MealLogUncheckedUpdateManyWithoutRecipeNestedInput
     MealPlanMeal?: MealPlanMealUncheckedUpdateManyWithoutRecipeNestedInput
     RecipeIngredient?: RecipeIngredientUncheckedUpdateManyWithoutRecipeNestedInput
@@ -24239,8 +24262,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
   }
 
   export type RecipeUpdateManyMutationInput = {
@@ -24259,8 +24283,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
   }
 
   export type RecipeUncheckedUpdateManyInput = {
@@ -24280,8 +24305,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
   }
 
   export type RecipeIngredientCreateInput = {
@@ -25498,6 +25524,13 @@ export namespace Prisma {
     not?: NestedEnumDietTypeNullableFilter<$PrismaModel> | $Enums.DietType | null
   }
 
+  export type EnumMealTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.MealType | EnumMealTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.MealType[] | ListEnumMealTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.MealType[] | ListEnumMealTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumMealTypeNullableFilter<$PrismaModel> | $Enums.MealType | null
+  }
+
   export type UserNullableScalarRelationFilter = {
     is?: UserWhereInput | null
     isNot?: UserWhereInput | null
@@ -25540,8 +25573,9 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     country?: SortOrder
-    goal?: SortOrder
     dietType?: SortOrder
+    goal?: SortOrder
+    mealType?: SortOrder
   }
 
   export type RecipeAvgOrderByAggregateInput = {
@@ -25569,8 +25603,9 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     country?: SortOrder
-    goal?: SortOrder
     dietType?: SortOrder
+    goal?: SortOrder
+    mealType?: SortOrder
   }
 
   export type RecipeMinOrderByAggregateInput = {
@@ -25589,8 +25624,9 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     country?: SortOrder
-    goal?: SortOrder
     dietType?: SortOrder
+    goal?: SortOrder
+    mealType?: SortOrder
   }
 
   export type RecipeSumOrderByAggregateInput = {
@@ -25610,6 +25646,16 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumDietTypeNullableFilter<$PrismaModel>
     _max?: NestedEnumDietTypeNullableFilter<$PrismaModel>
+  }
+
+  export type EnumMealTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.MealType | EnumMealTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.MealType[] | ListEnumMealTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.MealType[] | ListEnumMealTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumMealTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.MealType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumMealTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumMealTypeNullableFilter<$PrismaModel>
   }
 
   export type RecipeIngredientCountOrderByAggregateInput = {
@@ -26338,6 +26384,10 @@ export namespace Prisma {
 
   export type NullableEnumDietTypeFieldUpdateOperationsInput = {
     set?: $Enums.DietType | null
+  }
+
+  export type NullableEnumMealTypeFieldUpdateOperationsInput = {
+    set?: $Enums.MealType | null
   }
 
   export type MealLogUpdateManyWithoutRecipeNestedInput = {
@@ -27209,6 +27259,13 @@ export namespace Prisma {
     not?: NestedEnumDietTypeNullableFilter<$PrismaModel> | $Enums.DietType | null
   }
 
+  export type NestedEnumMealTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.MealType | EnumMealTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.MealType[] | ListEnumMealTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.MealType[] | ListEnumMealTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumMealTypeNullableFilter<$PrismaModel> | $Enums.MealType | null
+  }
+
   export type NestedEnumDietTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.DietType | EnumDietTypeFieldRefInput<$PrismaModel> | null
     in?: $Enums.DietType[] | ListEnumDietTypeFieldRefInput<$PrismaModel> | null
@@ -27217,6 +27274,16 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumDietTypeNullableFilter<$PrismaModel>
     _max?: NestedEnumDietTypeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumMealTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.MealType | EnumMealTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.MealType[] | ListEnumMealTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.MealType[] | ListEnumMealTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumMealTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.MealType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumMealTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumMealTypeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumRoleFilter<$PrismaModel = never> = {
@@ -27596,8 +27663,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
     MealLog?: MealLogCreateNestedManyWithoutRecipeInput
     User?: UserCreateNestedOneWithoutRecipeInput
     RecipeIngredient?: RecipeIngredientCreateNestedManyWithoutRecipeInput
@@ -27621,8 +27689,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
     MealLog?: MealLogUncheckedCreateNestedManyWithoutRecipeInput
     RecipeIngredient?: RecipeIngredientUncheckedCreateNestedManyWithoutRecipeInput
     SavedMeal?: SavedMealUncheckedCreateNestedManyWithoutRecipeInput
@@ -27695,8 +27764,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
     MealLog?: MealLogUpdateManyWithoutRecipeNestedInput
     User?: UserUpdateOneWithoutRecipeNestedInput
     RecipeIngredient?: RecipeIngredientUpdateManyWithoutRecipeNestedInput
@@ -27720,8 +27790,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
     MealLog?: MealLogUncheckedUpdateManyWithoutRecipeNestedInput
     RecipeIngredient?: RecipeIngredientUncheckedUpdateManyWithoutRecipeNestedInput
     SavedMeal?: SavedMealUncheckedUpdateManyWithoutRecipeNestedInput
@@ -27924,8 +27995,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
     MealPlanMeal?: MealPlanMealCreateNestedManyWithoutRecipeInput
     User?: UserCreateNestedOneWithoutRecipeInput
     RecipeIngredient?: RecipeIngredientCreateNestedManyWithoutRecipeInput
@@ -27949,8 +28021,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
     MealPlanMeal?: MealPlanMealUncheckedCreateNestedManyWithoutRecipeInput
     RecipeIngredient?: RecipeIngredientUncheckedCreateNestedManyWithoutRecipeInput
     SavedMeal?: SavedMealUncheckedCreateNestedManyWithoutRecipeInput
@@ -28021,8 +28094,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
     MealPlanMeal?: MealPlanMealUpdateManyWithoutRecipeNestedInput
     User?: UserUpdateOneWithoutRecipeNestedInput
     RecipeIngredient?: RecipeIngredientUpdateManyWithoutRecipeNestedInput
@@ -28046,8 +28120,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
     MealPlanMeal?: MealPlanMealUncheckedUpdateManyWithoutRecipeNestedInput
     RecipeIngredient?: RecipeIngredientUncheckedUpdateManyWithoutRecipeNestedInput
     SavedMeal?: SavedMealUncheckedUpdateManyWithoutRecipeNestedInput
@@ -28929,8 +29004,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
     MealLog?: MealLogCreateNestedManyWithoutRecipeInput
     MealPlanMeal?: MealPlanMealCreateNestedManyWithoutRecipeInput
     User?: UserCreateNestedOneWithoutRecipeInput
@@ -28954,8 +29030,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
     MealLog?: MealLogUncheckedCreateNestedManyWithoutRecipeInput
     MealPlanMeal?: MealPlanMealUncheckedCreateNestedManyWithoutRecipeInput
     SavedMeal?: SavedMealUncheckedCreateNestedManyWithoutRecipeInput
@@ -28993,8 +29070,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
     MealLog?: MealLogUpdateManyWithoutRecipeNestedInput
     MealPlanMeal?: MealPlanMealUpdateManyWithoutRecipeNestedInput
     User?: UserUpdateOneWithoutRecipeNestedInput
@@ -29018,8 +29096,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
     MealLog?: MealLogUncheckedUpdateManyWithoutRecipeNestedInput
     MealPlanMeal?: MealPlanMealUncheckedUpdateManyWithoutRecipeNestedInput
     SavedMeal?: SavedMealUncheckedUpdateManyWithoutRecipeNestedInput
@@ -29041,8 +29120,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
     MealLog?: MealLogCreateNestedManyWithoutRecipeInput
     MealPlanMeal?: MealPlanMealCreateNestedManyWithoutRecipeInput
     User?: UserCreateNestedOneWithoutRecipeInput
@@ -29066,8 +29146,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
     MealLog?: MealLogUncheckedCreateNestedManyWithoutRecipeInput
     MealPlanMeal?: MealPlanMealUncheckedCreateNestedManyWithoutRecipeInput
     RecipeIngredient?: RecipeIngredientUncheckedCreateNestedManyWithoutRecipeInput
@@ -29105,8 +29186,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
     MealLog?: MealLogUpdateManyWithoutRecipeNestedInput
     MealPlanMeal?: MealPlanMealUpdateManyWithoutRecipeNestedInput
     User?: UserUpdateOneWithoutRecipeNestedInput
@@ -29130,8 +29212,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
     MealLog?: MealLogUncheckedUpdateManyWithoutRecipeNestedInput
     MealPlanMeal?: MealPlanMealUncheckedUpdateManyWithoutRecipeNestedInput
     RecipeIngredient?: RecipeIngredientUncheckedUpdateManyWithoutRecipeNestedInput
@@ -29415,8 +29498,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
     MealLog?: MealLogCreateNestedManyWithoutRecipeInput
     MealPlanMeal?: MealPlanMealCreateNestedManyWithoutRecipeInput
     RecipeIngredient?: RecipeIngredientCreateNestedManyWithoutRecipeInput
@@ -29439,8 +29523,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
     MealLog?: MealLogUncheckedCreateNestedManyWithoutRecipeInput
     MealPlanMeal?: MealPlanMealUncheckedCreateNestedManyWithoutRecipeInput
     RecipeIngredient?: RecipeIngredientUncheckedCreateNestedManyWithoutRecipeInput
@@ -29749,8 +29834,9 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Recipe"> | Date | string
     updatedAt?: DateTimeFilter<"Recipe"> | Date | string
     country?: StringNullableFilter<"Recipe"> | string | null
-    goal?: EnumHealthGoalNullableFilter<"Recipe"> | $Enums.HealthGoal | null
     dietType?: EnumDietTypeNullableFilter<"Recipe"> | $Enums.DietType | null
+    goal?: EnumHealthGoalNullableFilter<"Recipe"> | $Enums.HealthGoal | null
+    mealType?: EnumMealTypeNullableFilter<"Recipe"> | $Enums.MealType | null
   }
 
   export type MealPlanMealCreateManyMealPlanInput = {
@@ -30098,8 +30184,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     country?: string | null
-    goal?: $Enums.HealthGoal | null
     dietType?: $Enums.DietType | null
+    goal?: $Enums.HealthGoal | null
+    mealType?: $Enums.MealType | null
   }
 
   export type AiRecommendationUpdateWithoutUserInput = {
@@ -30295,8 +30382,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
     MealLog?: MealLogUpdateManyWithoutRecipeNestedInput
     MealPlanMeal?: MealPlanMealUpdateManyWithoutRecipeNestedInput
     RecipeIngredient?: RecipeIngredientUpdateManyWithoutRecipeNestedInput
@@ -30319,8 +30407,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
     MealLog?: MealLogUncheckedUpdateManyWithoutRecipeNestedInput
     MealPlanMeal?: MealPlanMealUncheckedUpdateManyWithoutRecipeNestedInput
     RecipeIngredient?: RecipeIngredientUncheckedUpdateManyWithoutRecipeNestedInput
@@ -30343,8 +30432,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     country?: NullableStringFieldUpdateOperationsInput | string | null
-    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
     dietType?: NullableEnumDietTypeFieldUpdateOperationsInput | $Enums.DietType | null
+    goal?: NullableEnumHealthGoalFieldUpdateOperationsInput | $Enums.HealthGoal | null
+    mealType?: NullableEnumMealTypeFieldUpdateOperationsInput | $Enums.MealType | null
   }
 
 
