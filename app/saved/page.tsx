@@ -29,7 +29,7 @@ orderBy: {
           save your favorites.
         </p>
         <Link
-          href="/Planner"
+          href="/planner"
           className="px-6 py-3 rounded-full bg-emerald-100 text-emerald-800 font-semibold hover:bg-emerald-200 transition"
         >
           Go to Planner
