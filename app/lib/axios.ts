@@ -78,6 +78,21 @@ export async function axiosPut<TRequest, TResponse>(
   }
 }
 
+export async function axiosPatch<TRequest, TResponse>(
+  path: string,
+  dto?: TRequest
+): Promise<TResponse> {
+  try {
+    const response = await api.patch<ApiResponse<TResponse>>(path, dto);
+    if (!response.data.success) {
+      throw new ApiError(response.data.error ?? "Request failed", response.status);
+    }
+    return response.data.data as TResponse;
+  } catch (error) {
+    throw toApiError(error, "An unknown error occurred while updating data");
+  }
+}
+
 export async function axiosDelete<T>(path: string): Promise<T> {
   try {
     const response = await api.delete<ApiResponse<T>>(path);

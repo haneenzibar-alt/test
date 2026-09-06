@@ -1,42 +1,34 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { axiosDelete } from "@/lib/axios";
 
 const CURRENT_USER_ID = "123";
 
 export default function DeleteSavedMealButton({
-  recipeId,
+  savedMealId,
 }: {
-  recipeId: string;
+  savedMealId: string;
 }) {
-  const router = useRouter();
+  const queryClient = useQueryClient();
 
-  const handleDelete = async () => {
-    try {
-      const response = await fetch(
-        `/api/saved-meals?userId=${CURRENT_USER_ID}&recipeId=${recipeId}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete meal");
-      }
-
-      router.refresh();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to delete meal");
-    }
-  };
+  const deleteMutation = useMutation({
+    mutationFn: () => axiosDelete(`/saved/${savedMealId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["saved-meals", CURRENT_USER_ID],
+      });
+    },
+  });
 
   return (
     <button
-      onClick={handleDelete}
-      className="px-4 py-2 rounded-full bg-red-100 text-red-700 font-semibold hover:bg-red-200 transition"
+      type="button"
+      onClick={() => deleteMutation.mutate()}
+      disabled={deleteMutation.isPending}
+      className="rounded-full bg-red-100 px-4 py-2 font-semibold text-red-700 transition hover:bg-red-200 disabled:opacity-60"
     >
-      Delete
+      {deleteMutation.isPending ? "Removing..." : "Remove from Saved"}
     </button>
   );
 }

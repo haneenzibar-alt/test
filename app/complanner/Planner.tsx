@@ -74,13 +74,16 @@ export default function Planner() {
       try {
         setLoading(true);
 
-        // Check if we already have a planner saved in this session
+        // Keep the current plan when returning from a recipe, but never
+        // reuse a stale "no profile" cache after a profile has been saved.
         const savedPlanner = sessionStorage.getItem("fitplate-planner");
 
         if (savedPlanner) {
           const parsedPlanner: PlannerResponse = JSON.parse(savedPlanner);
-          setData(parsedPlanner);
-          return;
+          if (parsedPlanner.hasProfile) {
+            setData(parsedPlanner);
+            return;
+          }
         }
 
         // Load planner from API only if there is no saved planner

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useProfile } from "./Context/ProfileContext";
 import {
   ActivityLevel,
@@ -9,7 +10,7 @@ import {
   MealSourcePreference,
   Profile,
 } from "@/generated/prisma/client";
-import { axiosPost, axiosPut } from "@/lib/axios";
+import { ApiError, axiosGet, axiosPatch, axiosPost } from "@/lib/axios";
 import Homepage from "./Homepage/page";
 import Personalinform from "./components/Personalinform";
 import GoalsForm from "./components/LocationandHealth";
@@ -82,14 +83,118 @@ export default function Home() {
     activityLevel,
     setActivityLevel,
     allergies,
+    setAllergies,
     medicalConditions,
+    setMedicalConditions,
     dislikedFoods,
+    setDislikedFoods,
     mealsPerDay,
     setMealsPerDay,
     mealSource,
+    setMealSource,
     planGenerated,
     setPlanGenerated,
   } = useProfile();
+
+  const hasHydratedForm = useRef(false);
+
+  const { data: existingProfile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      try {
+        return await axiosGet<Profile>(`/profile/${CURRENT_USER_ID}`);
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 404) {
+          return null;
+        }
+        throw err;
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (hasHydratedForm.current || existingProfile === undefined) {
+      return;
+    }
+
+    hasHydratedForm.current = true;
+    if (!existingProfile) {
+      return;
+    }
+
+    if (existingProfile.name) {
+      setName(existingProfile.name);
+    }
+    if (existingProfile.gender === "MALE") {
+      setSex("male");
+    } else if (existingProfile.gender === "FEMALE") {
+      setSex("female");
+    }
+    if (existingProfile.age) {
+      setAge(existingProfile.age);
+    }
+    if (existingProfile.weight) {
+      setWeight(existingProfile.weight);
+    }
+    if (existingProfile.height) {
+      setHeight(existingProfile.height);
+    }
+    if (existingProfile.country) {
+      setCountry(existingProfile.country);
+    }
+    if (existingProfile.healthGoal === "LOSE_WEIGHT") {
+      setGoal("lose");
+    } else if (existingProfile.healthGoal === "GAIN_WEIGHT") {
+      setGoal("gain");
+    } else if (existingProfile.healthGoal === "MAINTAIN_WEIGHT") {
+      setGoal("maintain");
+    }
+    if (existingProfile.activityLevel) {
+      setActivityLevel(existingProfile.activityLevel);
+    }
+    setAllergies(
+      existingProfile.allergies.length > 0
+        ? existingProfile.allergies.join(", ")
+        : "",
+    );
+    setMedicalConditions(
+      existingProfile.medicalConditions.length > 0
+        ? existingProfile.medicalConditions.join(", ")
+        : "",
+    );
+    setDislikedFoods(
+      existingProfile.dislikedFoods.length > 0
+        ? existingProfile.dislikedFoods.join(", ")
+        : "",
+    );
+    if (existingProfile.mealsPerDay) {
+      setMealsPerDay(existingProfile.mealsPerDay);
+    }
+    if (existingProfile.mealSourcePreference === "COOK_AT_HOME") {
+      setMealSource("cook");
+    } else if (existingProfile.mealSourcePreference === "ORDER_DELIVERY") {
+      setMealSource("delivery");
+    } else if (existingProfile.mealSourcePreference === "EAT_OUTSIDE") {
+      setMealSource("outside");
+    } else if (existingProfile.mealSourcePreference === "MIX_OF_ALL") {
+      setMealSource("mix");
+    }
+  }, [
+    existingProfile,
+    setName,
+    setSex,
+    setAge,
+    setWeight,
+    setHeight,
+    setCountry,
+    setGoal,
+    setActivityLevel,
+    setAllergies,
+    setMedicalConditions,
+    setDislikedFoods,
+    setMealsPerDay,
+    setMealSource,
+  ]);
 
   const saveProfileMutation = useMutation({
     mutationFn: () => {
@@ -109,21 +214,16 @@ export default function Home() {
         mealSourcePreference: mealSourceMap[mealSource],
       };
 
-      // Check the shared ["profile"] cache (populated by Personalinform's
-      // GET query) to decide create vs update. If it's already loaded and
-      // non-null, a profile exists — go through PUT instead of POST.
-      const existingProfile = queryClient.getQueryData(["profile"]);
-
       if (existingProfile) {
-        return axiosPut<Record<string, unknown> & { userId: string }, Profile>(
-          "/profile",
-          { userId: CURRENT_USER_ID, ...payload }
+        return axiosPatch<Record<string, unknown>, Profile>(
+          `/profile/${CURRENT_USER_ID}`,
+          payload,
         );
       }
 
       return axiosPost<Record<string, unknown>, Profile>(
         `/profile/${CURRENT_USER_ID}`,
-        payload
+        payload,
       );
     },
     onSuccess: () => {

@@ -1,66 +1,120 @@
-import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUserId } from "@/lib/auth"; // TODO: wire up to your real auth
+import { success, fail } from "@/lib/response";
 
-// GET /api/saved -> list all saved recipes for the current user
-export async function GET(request: NextRequest) {
+const recipeSelect = {
+  id: true,
+  name: true,
+  calories: true,
+  protein: true,
+  carbs: true,
+  fat: true,
+  imageUrl: true,
+  prepTime: true,
+  cookTime: true,
+  description: true,
+} as const;
+
+const savedMealSelect = {
+  id: true,
+  userId: true,
+  recipeId: true,
+  createdAt: true,
+  Recipe: {
+    select: recipeSelect,
+  },
+} as const;
+
+function toSavedMeal(row: {
+  id: string;
+  userId: string;
+  recipeId: string;
+  createdAt: Date;
+  Recipe: unknown;
+}) {
+  return {
+    id: row.id,
+    userId: row.userId,
+    recipeId: row.recipeId,
+    createdAt: row.createdAt,
+    recipe: row.Recipe,
+  };
+}
+
+export async function GET(request: Request) {
   try {
-    const userId = await getCurrentUserId();
+    const userId = new URL(request.url).searchParams.get("userId")?.trim();
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return fail("Missing required query param: userId", 400);
     }
 
     const savedMeals = await prisma.savedMeal.findMany({
       where: { userId },
-      include: { Recipe: true },
+      select: savedMealSelect,
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(savedMeals);
+    return success(savedMeals.map(toSavedMeal));
   } catch (error) {
-    console.error("Error fetching saved meals:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch saved meals" },
-      { status: 500 }
-    );
+    console.error("Failed to load saved meals:", error);
+    return fail("Unable to load saved meals. Please try again.", 500);
   }
 }
 
-// POST /api/saved  { recipeId } -> save a recipe for the current user
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const userId = await getCurrentUserId();
+    const body = await request.json();
+    const userId = typeof body.userId === "string" ? body.userId.trim() : "";
+    const recipeId =
+      typeof body.recipeId === "string" ? body.recipeId.trim() : "";
+
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return fail("Missing required field: userId", 400);
     }
-
-    const { recipeId } = await request.json();
     if (!recipeId) {
-      return NextResponse.json(
-        { error: "recipeId is required" },
-        { status: 400 }
-      );
+      return fail("Missing required field: recipeId", 400);
     }
 
-    const recipe = await prisma.recipe.findUnique({ where: { id: recipeId } });
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+    if (!user) {
+      return fail("User not found", 404);
+    }
+
+    const recipe = await prisma.recipe.findUnique({
+      where: { id: recipeId },
+      select: { id: true },
+    });
     if (!recipe) {
-      return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
+      return fail("Recipe not found", 404);
     }
 
-    // upsert so double-tapping "Save Meal" doesn't throw a unique constraint error
-    const saved = await prisma.savedMeal.upsert({
+    const existing = await prisma.savedMeal.findUnique({
       where: { userId_recipeId: { userId, recipeId } },
-      update: {},
-      create: { userId, recipeId },
-      include: { Recipe: true },
+      select: savedMealSelect,
+    });
+    if (existing) {
+      return fail("This recipe is already saved", 409);
+    }
+
+    const savedMeal = await prisma.savedMeal.create({
+      data: { userId, recipeId },
+      select: savedMealSelect,
     });
 
-    return NextResponse.json(saved, { status: 201 });
-  } catch (error) {
-    console.error("Error saving meal:", error);
-    return NextResponse.json(
-      { error: "Failed to save meal" },
-      { status: 500 }
-    );
+    return success(toSavedMeal(savedMeal), 201);
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
+      return fail("This recipe is already saved", 409);
+    }
+
+    console.error("Failed to save meal:", error);
+    return fail("Unable to save meal. Please try again.", 500);
   }
 }

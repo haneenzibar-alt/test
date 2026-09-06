@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { SaveMealButton } from "@/components/SaveMealButton";
 
 interface MealPageProps {
   params: Promise<{
@@ -126,6 +127,8 @@ export default async function MealPage({ params }: MealPageProps) {
               ))}
             </div>
           </div>
+
+          <SaveMealButton recipeId={recipe.id} />
         </div>
       </div>
     </main>

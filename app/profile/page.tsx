@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { axiosGet, axiosPut, axiosDelete, ApiError } from "@/lib/axios";
-import {Profile, User } from "@/generated/prisma/client";
+import { axiosGet, axiosPatch, axiosDelete, ApiError } from "@/lib/axios";
+import { Profile } from "@/generated/prisma/client";
 import ProfileFormModal, { ProfileFormValues } from "@/profile/ProfileFormModal";
 
 const CURRENT_USER_ID = "123";
 
-type ProfileWithUser = Profile & { user: User };
+type ProfileWithUser = Profile & {
+  user: { id: string; name: string | null; email: string; role: string };
+};
 
 // Same lookup used on the Home page and PlanResults, kept in sync
 const activityMultiplierMap: Record<string, number> = {
@@ -82,22 +85,31 @@ export default function ProfilePage() {
   const invalidateProfile = () =>
     queryClient.invalidateQueries({ queryKey: ["profile"] });
 
-  // PUT still lives on the base /profile route, so this is unchanged
   const updateMutation = useMutation({
     mutationFn: (values: ProfileFormValues) =>
-      axiosPut<ProfileFormValues & { userId: string }, ProfileWithUser>("/profile", {
-        userId: CURRENT_USER_ID,
-        ...values,
-      }),
+      axiosPatch<ProfileFormValues, ProfileWithUser>(
+        `/profile/${CURRENT_USER_ID}`,
+        {
+          age: values.age,
+          gender: values.gender,
+          height: values.height,
+          weight: values.weight,
+          targetWeight: values.targetWeight,
+          activityLevel: values.activityLevel,
+          dietType: values.dietType,
+          country: values.country,
+          healthGoal: values.healthGoal,
+          mealsPerDay: values.mealsPerDay,
+        },
+      ),
     onSuccess: () => {
       invalidateProfile();
       setModalOpen(false);
     },
   });
 
-  // DELETE still lives on the base /profile route, so this is unchanged
   const deleteMutation = useMutation({
-    mutationFn: () => axiosDelete<Profile>(`/profile?userId=${CURRENT_USER_ID}`),
+    mutationFn: () => axiosDelete<Profile>(`/profile/${CURRENT_USER_ID}`),
     onSuccess: () => invalidateProfile(),
   });
 
@@ -129,12 +141,18 @@ export default function ProfilePage() {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 px-4 text-center">
         <p className="text-4xl">👤</p>
-        <p className="text-sm text-gray-500">
-          No profile yet. Complete the questionnaire on the Home page to get started.
-        </p>
+        <p className="text-sm text-gray-500">No profile has been created yet.</p>
+        <Link
+          href="/"
+          className="rounded-xl bg-[#1a5c38] px-4 py-2 text-sm font-semibold text-white"
+        >
+          Go to Home
+        </Link>
       </div>
     );
   }
+
+  const displayName = profile.name ?? profile.user?.name ?? "My Profile";
 
   // Derived values (BMI, calories, macros) — same formulas used on the Home page
   const heightM = profile.height ? profile.height / 100 : 0;
@@ -185,10 +203,10 @@ export default function ProfilePage() {
       <section className="bg-linear-to-br from-emerald-900 to-emerald-800 px-4 py-10 md:px-6 md:py-12">
         <div className="mx-auto w-full max-w-2xl text-center">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white text-3xl font-bold text-[#1a5c38]">
-            {profile.user?.name ? profile.user.name.charAt(0) : "?"}
+            {displayName.charAt(0)}
           </div>
           <h1 className="mt-4 font-serif text-3xl font-bold text-white">
-            {profile.user?.name ?? "My Profile"}
+            {displayName}
           </h1>
           <p className="mt-2 text-sm text-emerald-100">
             {profile.country ?? "Country not set"}
@@ -249,7 +267,7 @@ export default function ProfilePage() {
             👤 Personal Info
           </h2>
           <div className="mt-2">
-            <InfoRow label="Name" value={profile.user?.name ?? "—"} />
+            <InfoRow label="Name" value={displayName} />
             <InfoRow label="Age" value={profile.age ? `${profile.age} years` : "—"} />
             <InfoRow
               label="Gender"
