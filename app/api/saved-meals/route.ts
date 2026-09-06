@@ -84,4 +84,42 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+
+}
+
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+
+    const userId = searchParams.get("userId");
+    const recipeId = searchParams.get("recipeId");
+
+    if (!userId || !recipeId) {
+      return NextResponse.json(
+        { error: "Missing userId or recipeId" },
+        { status: 400 }
+      );
+    }
+
+    await prisma.savedMeal.delete({
+      where: {
+        userId_recipeId: {
+          userId,
+          recipeId,
+        },
+      },
+    });
+
+    return NextResponse.json({
+      message: "Meal deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting saved meal:", error);
+
+    return NextResponse.json(
+      { error: "Failed to delete saved meal" },
+      { status: 500 }
+    );
+  }
 }

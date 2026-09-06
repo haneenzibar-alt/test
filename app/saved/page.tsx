@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import DeleteSavedMealButton from "./DeleteSavedMealButton";
 
 
 const CURRENT_USER_ID = "123";
@@ -58,6 +59,7 @@ orderBy: {
               {recipe.calories} kcal · {recipe.prepTime ?? "?"} min
             </p>
           </div>
+          <DeleteSavedMealButton recipeId={recipe.id} />
         </div>
       ))}
     </div>
