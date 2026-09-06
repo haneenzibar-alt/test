@@ -1,8 +1,8 @@
 "use client";
 
 import { useProfile } from "@/Context/ProfileContext";
-import Planner from "@/complanner/Planner";
-import PlannerLocked from "@/complanner/PlannerLocked";
+import Planner from "@/complanner/planner";
+import PlannerLocked from "@/complanner/plannerLocked";
 
 export default function PlannerPage() {
   const { planGenerated } = useProfile();

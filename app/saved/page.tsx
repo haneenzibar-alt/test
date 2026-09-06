@@ -1,19 +1,22 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUserId } from "@/lib/auth";
+
+// ⚠️ TODO: بدّلها لما يجهز نظام تسجيل الدخول الحقيقي
+const CURRENT_USER_ID = "123";
 
 export default async function SavedMealsPage() {
-  const userId = await getCurrentUserId();
-  if (!userId) redirect("/login");
-
   const savedMeals = await prisma.savedMeal.findMany({
-    where: { userId },
+    where: { userId: CURRENT_USER_ID },
     include: { Recipe: true },
-    orderBy: { savedAt: "desc" },
+orderBy: {
+  createdAt: "desc",
+}
+
+
+
+
   });
 
-  // Empty state -> send them to the planner to find something to save
   if (savedMeals.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">

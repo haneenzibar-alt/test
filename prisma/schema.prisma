@@ -97,8 +97,8 @@ model MealLog {
   carbs          Float    @default(0)
   fat            Float    @default(0)
   servingSize    Float    @default(1.0)
-  dailyLog       DailyLog @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
-  Recipe         Recipe?  @relation(fields: [recipeId], references: [id])
+  dailyLog        DailyLog @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
+  Recipe          Recipe?  @relation(fields: [recipeId], references: [id])
 }
 
 model Restaurant {
@@ -190,6 +190,11 @@ model Recipe {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime
   country          String?
+
+  // تحديد الهدف والنظام الغذائي المناسب للوجبة
+  goal             HealthGoal?
+  dietType         DietType?
+
   MealLog          MealLog[]
   MealPlanMeal     MealPlanMeal[]
   User             User?              @relation(fields: [createdById], references: [id])
@@ -211,7 +216,7 @@ model SavedMeal {
   userId    String
   recipeId  String
   Recipe    Recipe   @relation(fields: [recipeId], references: [id])
-  savedAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([userId, recipeId])
 }
@@ -223,7 +228,7 @@ model User {
   name                       String?
   role                       Role                 @default(USER)
   createdAt                  DateTime             @default(now())
-  updatedAt                  DateTime
+  updatedAt                  DateTime             @updatedAt
   aiQueries                  AiRecommendation[]
   appointmentsAsClient       Appointment[]        @relation("ClientAppointments")
   appointmentsAsNutritionist Appointment[]        @relation("NutritionistAppointments")

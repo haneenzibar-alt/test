@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const savedMeals = await prisma.savedMeal.findMany({
       where: { userId },
       include: { Recipe: true },
-      orderBy: { savedAt: "desc" },
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json(savedMeals);

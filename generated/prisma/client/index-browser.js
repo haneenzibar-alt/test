@@ -279,7 +279,9 @@ exports.Prisma.RecipeScalarFieldEnum = {
   createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  country: 'country'
+  country: 'country',
+  goal: 'goal',
+  dietType: 'dietType'
 };
 
 exports.Prisma.RecipeIngredientScalarFieldEnum = {
@@ -294,7 +296,7 @@ exports.Prisma.SavedMealScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   recipeId: 'recipeId',
-  savedAt: 'savedAt'
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
