@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 interface MealPageProps {
@@ -26,6 +27,17 @@ export default async function MealPage({ params }: MealPageProps) {
   return (
     <main className="min-h-screen bg-gray-50 pb-24">
       <div className="mx-auto max-w-lg">
+
+        {/* Back to Planner */}
+        <div className="px-4 pt-4">
+          <Link
+            href="/planner"
+            className="inline-flex items-center px-4 py-2 text-gray-700 font-medium hover:text-emerald-600 transition"
+          >
+            ← Back
+          </Link>
+        </div>
+
         {recipe.imageUrl && (
           <img
             src={recipe.imageUrl}
