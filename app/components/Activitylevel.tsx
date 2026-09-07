@@ -1,11 +1,7 @@
 "use client";
 
 import Card from "@/components/ui/Card";
-import { useQuery } from "@tanstack/react-query";
-import { axiosGet, ApiError } from "@/lib/axios";
 import { ActivityLevel } from "@/generated/prisma/client";
-
-const CURRENT_USER_ID = "123";
 
 export default function Activitylevel({
   activityLevel,
@@ -14,22 +10,6 @@ export default function Activitylevel({
   activityLevel: ActivityLevel | null;
   setActivityLevel: (value: ActivityLevel) => void;
 }) {
-  const { data: profileData, isLoading, error } = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      try {
-        return await axiosGet(`/profile/${CURRENT_USER_ID}`);
-      } catch (err) {
-        if (err instanceof ApiError && err.status === 404) {
-          return null; // no profile yet — normal for a new user
-        }
-        throw err;
-      }
-    },
-  });
-
-  console.log(profileData, isLoading, error);
-
   const options: [ActivityLevel, string, string, string, string][] = [
     ["SEDENTARY", "🪑", "Sedentary", "Desk job, little to no exercise", "×1.2"],
     ["LIGHTLY_ACTIVE", "🚶", "Lightly Active", "Light exercise 1–3 days/week", "×1.375"],

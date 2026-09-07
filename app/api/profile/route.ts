@@ -10,17 +10,14 @@ export async function PUT(request: Request) {
   }
 
   try {
-    if (name !== undefined) {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { name },
-      });
-    }
-
     const profile = await prisma.profile.update({
       where: { userId },
-      data: profileFields,
-      include: { user: true },
+      data: name !== undefined ? { name, ...profileFields } : profileFields,
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, role: true },
+        },
+      },
     });
 
     return success(profile);

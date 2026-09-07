@@ -23,34 +23,6 @@ const activityMultiplierMap: Record<string, number> = {
   EXTRA_ACTIVE: 1.9,
 };
 
-const activityLabelMap: Record<string, string> = {
-  SEDENTARY: "Sedentary",
-  LIGHTLY_ACTIVE: "Lightly Active",
-  MODERATELY_ACTIVE: "Moderately Active",
-  VERY_ACTIVE: "Very Active",
-  EXTRA_ACTIVE: "Extra Active",
-};
-
-const genderLabelMap: Record<string, string> = {
-  MALE: "Male",
-  FEMALE: "Female",
-  OTHER: "Other",
-  PREFER_NOT_TO_SAY: "Prefer not to say",
-};
-
-const mealSourceLabelMap: Record<string, string> = {
-  COOK_AT_HOME: "Cook at Home",
-  ORDER_DELIVERY: "Order Delivery",
-  EAT_OUTSIDE: "Eat Outside",
-  MIX_OF_ALL: "Mix of All",
-};
-
-// Mirrors the server route's shape (app/api/nutrition-coach/route.ts) —
-// keep these two in sync if the route's contract changes.
-const MAX_MESSAGES = 20;
-
-type ApiChatMessage = { role: "user" | "assistant"; content: string };
-
 type ChatMessage = {
   id: number;
   role: "ai" | "user";
@@ -130,45 +102,6 @@ function deriveCoachProfile(profile: ProfileWithUser) {
   };
 }
 
-type CoachProfile = ReturnType<typeof deriveCoachProfile>;
-
-// CHAT_SYSTEM_PROMPT (lib/openai.ts) explicitly tells the model it has no
-// live DB access unless profile details are included in the conversation
-// itself — so we build that context here and attach it to each outgoing
-// user turn (not shown in the UI, just sent to the API).
-function buildProfileContext(profile: ProfileWithUser, derived: CoachProfile) {
-  const lines = [
-    `Name: ${profile.user?.name ?? "unknown"}`,
-    `Age: ${profile.age ?? "unknown"}`,
-    `Gender: ${profile.gender ? genderLabelMap[profile.gender] : "unknown"}`,
-    `Height: ${profile.height ?? "unknown"} cm`,
-    `Weight: ${profile.weight ?? "unknown"} kg`,
-    `Target weight: ${profile.targetWeight ?? "unknown"} kg`,
-    `Country/cuisine: ${derived.country}`,
-    `Health goal: ${derived.goal}`,
-    `Activity level: ${profile.activityLevel ? activityLabelMap[profile.activityLevel] : "unknown"}`,
-    `Diet type: ${profile.dietType ?? "unknown"}`,
-    `Meals per day: ${derived.mealsPerDay}`,
-    `Meal source preference: ${
-      profile.mealSourcePreference ? mealSourceLabelMap[profile.mealSourcePreference] : "unknown"
-    }`,
-    `Allergies: ${derived.allergies.length ? derived.allergies.join(", ") : "none reported"}`,
-    `Medical conditions: ${
-      profile.medicalConditions.length ? profile.medicalConditions.join(", ") : "none reported"
-    }`,
-    `Disliked foods: ${
-      profile.dislikedFoods.length ? profile.dislikedFoods.join(", ") : "none reported"
-    }`,
-    `Daily calorie target: ${derived.dailyCalories} kcal`,
-    `Protein target: ${derived.proteinTarget} g`,
-    `Carb target: ${derived.carbsTarget} g`,
-    `Fat target: ${derived.fatTarget} g`,
-    `BMI: ${derived.bmi ?? "unknown"} (${derived.bmiCategory})`,
-  ];
-
-  return `[FitPlate user profile — use this to personalize your answer, don't repeat it back verbatim]\n${lines.join("\n")}`;
-}
-
 export default function NutritionCoachPage() {
   const {
     data: profileData,
@@ -229,42 +162,26 @@ export default function NutritionCoachPage() {
     setIsTyping(true);
 
     try {
-      const derived = deriveCoachProfile(profileData);
-      const profileContext = buildProfileContext(profileData, derived);
-
-      // Convert to the API's { role: "user" | "assistant", content }
-      // shape. Only the *current* turn gets the profile context prepended
-      // — earlier turns are sent as the user actually typed them.
-      const apiMessages: ApiChatMessage[] = conversation
-        .slice(-MAX_MESSAGES)
-        .map((m, index, arr) => ({
-          role: m.role === "ai" ? "assistant" : "user",
-          content:
-            index === arr.length - 1
-              ? `${profileContext}\n\nUser question: ${m.text}`
-              : m.text,
-        }));
-
-      const { reply } = await axiosPost<{ messages: ApiChatMessage[] }, { reply: string }>(
-        "/nutrition-coach",
-        { messages: apiMessages }
-      );
+      const { reply } = await axiosPost<
+        { message: string; userId: string },
+        { reply: string }
+      >("/nutrition-coach", {
+        message: trimmed,
+        userId: CURRENT_USER_ID,
+      });
 
       const aiMessage: ChatMessage = {
         id: nextId.current,
         role: "ai",
-        text: reply || "Sorry, I couldn't come up with a reply just now.",
+        text: reply || "Unable to reach the Nutrition Coach right now. Please try again.",
       };
       nextId.current += 1;
       setMessages((current) => [...current, aiMessage]);
-    } catch (err) {
+    } catch {
       const aiMessage: ChatMessage = {
         id: nextId.current,
         role: "ai",
-        text:
-          err instanceof ApiError
-            ? `Sorry, something went wrong: ${err.message}`
-            : "Sorry, I'm having trouble connecting right now. Please try again in a moment.",
+        text: "Unable to reach the Nutrition Coach right now. Please try again.",
       };
       nextId.current += 1;
       setMessages((current) => [...current, aiMessage]);
