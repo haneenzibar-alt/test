@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     const completion = await getOpenAI().chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "openrouter/free",
       messages: [
         { role: "system", content: CHAT_SYSTEM_PROMPT },
         ...messages.map((m) => ({ role: m.role, content: m.content })),
@@ -65,8 +65,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Failed to get chat completion:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to get a reply from the assistant" },
+      {
+        success: false,
+        error: "Failed to get a reply from the assistant",
+        debug: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
-  }
-}
+  }}

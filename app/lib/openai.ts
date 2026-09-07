@@ -11,12 +11,12 @@ const globalForOpenAI = globalThis as unknown as {
 export function getOpenAI(): OpenAI {
   if (!globalForOpenAI.openai) {
     globalForOpenAI.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: process.env.OPENROUTER_API_KEY,
+      baseURL: "https://openrouter.ai/api/v1",
     });
   }
   return globalForOpenAI.openai;
 }
-
 /**
  * System prompt grounding the /coach assistant in FitPlate's domain so it
  * declines questions outside it. Keep in sync with the actual feature set
