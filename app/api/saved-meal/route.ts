@@ -1,28 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
 export async function POST(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: "Missing userId" },
-        { status: 400 }
-      );
-    }
-
     const body = await request.json();
+
+    const userId = searchParams.get("userId") ?? body.userId;
     const { recipeId } = body;
 
-    if (!recipeId) {
-      return NextResponse.json(
-        { error: "Missing recipeId" },
-        { status: 400 }
-      );
+    if (!userId) {
+      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
     }
-
+    if (!recipeId) {
+      return NextResponse.json({ error: "Missing recipeId" }, { status: 400 });
+    }
+  
     const savedMeal = await prisma.savedMeal.upsert({
       where: {
         userId_recipeId: {
@@ -84,9 +76,7 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-
 }
-
 
 export async function DELETE(request: NextRequest) {
   try {

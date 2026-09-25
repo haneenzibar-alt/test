@@ -109,34 +109,30 @@ export default function Planner() {
 
     loadPlanner();
   }, []);
+async function handleSaveMeal(recipeId: string) {
+  setSavingId(recipeId);
 
-  async function handleSaveMeal(recipeId: string) {
-    setSavingId(recipeId);
+  try {
+    const res = await fetch(`/api/saved`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: CURRENT_USER_ID, recipeId }),
+    });
 
-    try {
-      const res = await fetch(
-        `/api/saved-meals?userId=${CURRENT_USER_ID}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ recipeId }),
-        }
-      );
-
-      if (!res.ok && res.status !== 409) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to save meal");
-      }
-
-      setSavedMealIds((prev) =>
-        prev.includes(recipeId) ? prev : [...prev, recipeId]
-      );
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setSavingId(null);
+    if (!res.ok && res.status !== 409) {
+      const err = await res.json();
+      throw new Error(err.error || "Failed to save meal");
     }
+
+    setSavedMealIds((prev) =>
+      prev.includes(recipeId) ? prev : [...prev, recipeId]
+    );
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setSavingId(null);
   }
+}
 
   if (loading) {
     return (

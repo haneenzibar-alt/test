@@ -271,7 +271,8 @@ export async function GET(
     if (!profile) {
       return fail("Profile not found", 404);
     }
-
+   
+    console.log("haneen");
     return success(profile);
   } catch (error) {
     console.error("Failed to load profile:", error);

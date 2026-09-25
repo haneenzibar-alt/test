@@ -1,7 +1,7 @@
 "use client";
 
-import Card from "@/components/ui/Card";
-import Input from "@/components/ui/Input";
+import Card from "@/app/components/ui/Card";
+import Input from "@/app/components/ui/Input";
 import { useProfile } from "@/Context/ProfileContext";
 
 export default function Personalinform({

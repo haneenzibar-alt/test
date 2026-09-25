@@ -1,6 +1,6 @@
 "use client";
 
-import Card from "@/components/ui/Card";
+import Card from "@/app/components/ui/Card";
 import { ActivityLevel } from "@/generated/prisma/client";
 
 export default function Activitylevel({

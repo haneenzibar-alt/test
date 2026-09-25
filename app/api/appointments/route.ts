@@ -49,6 +49,7 @@ export async function GET(request: Request) {
     return success(appointments);
   } catch (error) {
     console.error("Failed to load appointments:", error);
+    console.log("hello");
     return fail("Unable to load appointments. Please try again.", 500);
   }
 }

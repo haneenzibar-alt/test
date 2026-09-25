@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Card from "@/components/ui/Card";
-import Input from "@/components/ui/Input";
-import { useProfile } from "@/Context/ProfileContext";
+import Card from "@/app/components/ui/Card";
+import Input from "@/app/components/ui/Input";
+import { useProfile } from "@/app/Context/ProfileContext";
 
 type FieldName = "allergies" | "conditions" | "dislikes";
 type FormErrors = Partial<Record<FieldName, string>>;

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { SaveMealButton } from "@/components/SaveMealButton";
+import { SaveMealButton } from "@/app/components/SaveMealButton";
 
 interface MealPageProps {
   params: Promise<{

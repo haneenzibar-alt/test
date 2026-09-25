@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosGet, axiosPatch, axiosDelete, ApiError } from "@/lib/axios";
 import { Profile } from "@/generated/prisma/client";
-import ProfileFormModal, { ProfileFormValues } from "@/profile/ProfileFormModal";
+import ProfileFormModal, { ProfileFormValues } from "@/app/profile/ProfileFormModal";
 
 const CURRENT_USER_ID = "123";
 
@@ -60,6 +60,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 export default function ProfilePage() {
+ 
   const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -72,7 +73,9 @@ export default function ProfilePage() {
     queryFn: async () => {
       try {
         // Now hits the [id] route instead of the query-param based one
-        return await axiosGet<ProfileWithUser>(`/profile/${CURRENT_USER_ID}`);
+        const data= await axiosGet<ProfileWithUser>(`/profile/${CURRENT_USER_ID}`);
+        console.log("Profile data:", data);
+        return data;
       } catch (err) {
         if (err instanceof ApiError && err.status === 404) {
           return null;

@@ -1,8 +1,8 @@
 "use client";
 
-import Card from "@/components/ui/Card";
-import PillSelect from "@/components/ui/Pillselect";
-import OptionCardGroup from "@/components/ui/Optioncard";
+import Card from "@/app/components/ui/Card";
+import PillSelect from "@/app/components/ui/Pillselect";
+import OptionCardGroup from "@/app/components/ui/Optioncard";
 import { useProfile } from "@/Context/ProfileContext";
 
 const MEALS_PER_DAY = [3, 4, 5];

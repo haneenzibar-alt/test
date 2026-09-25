@@ -43,7 +43,7 @@ export async function GET(
     if (!appointment) {
       return fail("Appointment not found", 404);
     }
-
+    
     return success(appointment);
   } catch (error) {
     console.error("Failed to load appointment:", error);

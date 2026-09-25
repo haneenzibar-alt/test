@@ -1,6 +1,6 @@
 "use client";
 
-import Planner from "@/complanner/Planner";
+import Planner from "@/app/complanner/Planner";
 
 export default function PlannerPage() {
   return <Planner />;
