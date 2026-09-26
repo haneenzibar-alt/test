@@ -60,7 +60,7 @@ const recipes = [
     carbs: 42,
     fat: 7,
     imageUrl:
-      "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=1200&q=80",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6SP5maWvWjc8whcDvIqR6DOuul6hDg1TQHiAEblZNAg&s=10",
     isAiGenerated: false,
     updatedAt: new Date(),
     country: "Lebanon",
@@ -486,7 +486,7 @@ const recipes = [
     carbs: 58,
     fat: 22,
     imageUrl:
-      "https://images.unsplash.com/photo-1593001874117-c99c800e3eb9?auto=format&fit=crop&w=1200&q=80",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlAQZ2APpL7NleBh8qw6jBxz7qAPh0stpJTxKLNBwNAA&s=10",
     isAiGenerated: false,
     updatedAt: new Date(),
     country: "Lebanon",

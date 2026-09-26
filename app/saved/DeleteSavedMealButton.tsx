@@ -2,8 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { axiosDelete } from "@/lib/axios";
-
-const CURRENT_USER_ID = "123";
+import { getUserId } from "@/lib/getUserId";
 
 export default function DeleteSavedMealButton({
   savedMealId,
@@ -16,7 +15,7 @@ export default function DeleteSavedMealButton({
     mutationFn: () => axiosDelete(`/saved/${savedMealId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["saved-meals", CURRENT_USER_ID],
+        queryKey: ["saved-meals", getUserId()],
       });
     },
   });

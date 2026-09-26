@@ -1,11 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { axiosGet } from "@/lib/axios";
+import { getUserId } from "@/lib/getUserId";
 import DeleteSavedMealButton from "./DeleteSavedMealButton";
 
-const CURRENT_USER_ID = "123";
 
 type SavedRecipe = {
   id: string;
@@ -25,14 +26,20 @@ type SavedMealRow = {
 };
 
 export default function SavedMealsPage() {
+  const [userId, setUserId] = useState("");
+useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  setUserId(getUserId());
+}, []);
+
   const {
     data: savedMeals,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["saved-meals", CURRENT_USER_ID],
-    queryFn: () =>
-      axiosGet<SavedMealRow[]>(`/saved?userId=${CURRENT_USER_ID}`),
+    queryKey: ["saved-meals", userId],
+    queryFn: () => axiosGet<SavedMealRow[]>(`/saved?userId=${userId}`),
+    enabled: !!userId,
   });
 
   if (isLoading) {
