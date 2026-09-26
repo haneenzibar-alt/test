@@ -2,25 +2,34 @@
 
 import { useEffect, useState } from "react";
 import { ApiError, axiosGet, axiosPost } from "@/lib/axios";
-
-const CURRENT_USER_ID = "123";
+import { getUserId } from "@/lib/getUserId";
 
 type SavedMealRow = {
   recipeId: string;
 };
 
 export function SaveMealButton({ recipeId }: { recipeId: string }) {
+  const [userId, setUserId] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  setUserId(getUserId());
+}, []);
+
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+
     let cancelled = false;
 
     async function loadSavedState() {
       try {
         const savedMeals = await axiosGet<SavedMealRow[]>(
-          `/saved?userId=${CURRENT_USER_ID}`,
+          `/saved?userId=${userId}`,
         );
         if (!cancelled) {
           setSaved(savedMeals.some((meal) => meal.recipeId === recipeId));
@@ -34,15 +43,19 @@ export function SaveMealButton({ recipeId }: { recipeId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [recipeId]);
+  }, [recipeId, userId]);
 
   async function handleSave() {
+    if (!userId) {
+      return;
+    }
+
     setSaving(true);
     setError(null);
     try {
       await axiosPost<{ userId: string; recipeId: string }, unknown>(
         "/saved",
-        { userId: CURRENT_USER_ID, recipeId },
+        { userId, recipeId },
       );
       setSaved(true);
     } catch (err) {

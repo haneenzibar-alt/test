@@ -299,13 +299,20 @@ export async function POST(
       return fail(error instanceof Error ? error.message : "Invalid input", 400);
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-    if (!user) {
-      return fail("User not found", 404);
-    }
+ // New visitors get a random ID on their first visit (no login system),
+// so there's no matching User row yet — create one automatically with
+// placeholder values instead of failing. This account is never used to
+// log in, so email/passwordHash are just satisfying the schema.
+const user = await prisma.user.upsert({
+  where: { id },
+  update: {},
+  create: {
+    id,
+    email: `${id}@anonymous.fitplate.local`,
+    passwordHash: "anonymous-no-login",
+  },
+  select: { id: true },
+});
 
     const existing = await prisma.profile.findUnique({
       where: { userId: id },

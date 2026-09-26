@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useProfile } from "./Context/ProfileContext";
 import {
@@ -11,6 +11,7 @@ import {
   Profile,
 } from "@/generated/prisma/client";
 import { ApiError, axiosGet, axiosPatch, axiosPost } from "@/lib/axios";
+import { getUserId } from "@/lib/getUserId";
 import Homepage from "./Homepage/page";
 import Personalinform from "./components/Personalinform";
 import GoalsForm from "./components/LocationandHealth";
@@ -21,9 +22,6 @@ import GenerateButton from "./components/GenerateButton";
 import PlanResults from "./components/PlanResult";
 import PlanBreakdown from "./components/PlanBreakdown";
 import TrustSection from "./components/TrustSection";
-
-// TODO: replace with the real logged-in user's id from Supabase Auth
-const CURRENT_USER_ID = "123";
 
 const activityMultiplierMap: Record<ActivityLevel, number> = {
   SEDENTARY: 1.2,
@@ -65,6 +63,15 @@ function parseListField(value: string): string[] {
 
 export default function Home() {
   const queryClient = useQueryClient();
+
+  // Each browser gets its own persistent random ID (stored in localStorage),
+  // so different visitors don't see each other's profile/plan data.
+  const [userId, setUserId] = useState("");
+useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  setUserId(getUserId());
+}, []);
+
   const {
     name,
     setName,
@@ -99,10 +106,10 @@ export default function Home() {
   const hasHydratedForm = useRef(false);
 
   const { data: existingProfile } = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", userId],
     queryFn: async () => {
       try {
-        return await axiosGet<Profile>(`/profile/${CURRENT_USER_ID}`);
+        return await axiosGet<Profile>(`/profile/${userId}`);
       } catch (err) {
         if (err instanceof ApiError && err.status === 404) {
           return null;
@@ -110,6 +117,7 @@ export default function Home() {
         throw err;
       }
     },
+    enabled: !!userId,
   });
 
   useEffect(() => {
@@ -216,18 +224,18 @@ export default function Home() {
 
       if (existingProfile) {
         return axiosPatch<Record<string, unknown>, Profile>(
-          `/profile/${CURRENT_USER_ID}`,
+          `/profile/${userId}`,
           payload,
         );
       }
 
       return axiosPost<Record<string, unknown>, Profile>(
-        `/profile/${CURRENT_USER_ID}`,
+        `/profile/${userId}`,
         payload,
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["profile", userId] });
     },
   });
 

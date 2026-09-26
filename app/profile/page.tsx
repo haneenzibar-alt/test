@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosGet, axiosPatch, axiosDelete, ApiError } from "@/lib/axios";
+import { getUserId } from "@/lib/getUserId";
 import { Profile } from "@/generated/prisma/client";
 import ProfileFormModal, { ProfileFormValues } from "@/app/profile/ProfileFormModal";
-
-const CURRENT_USER_ID = "123";
 
 type ProfileWithUser = Profile & {
   user: { id: string; name: string | null; email: string; role: string };
@@ -60,21 +59,24 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 export default function ProfilePage() {
- 
   const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
+  const [userId, setUserId] = useState("");
+
+ useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  setUserId(getUserId());
+}, []);
 
   const {
     data: profile,
     isLoading,
     error,
   } = useQuery<ProfileWithUser | null>({
-    queryKey: ["profile"],
+    queryKey: ["profile", userId],
     queryFn: async () => {
       try {
-        // Now hits the [id] route instead of the query-param based one
-        const data= await axiosGet<ProfileWithUser>(`/profile/${CURRENT_USER_ID}`);
-        console.log("Profile data:", data);
+        const data = await axiosGet<ProfileWithUser>(`/profile/${userId}`);
         return data;
       } catch (err) {
         if (err instanceof ApiError && err.status === 404) {
@@ -83,15 +85,16 @@ export default function ProfilePage() {
         throw err;
       }
     },
+    enabled: !!userId,
   });
 
   const invalidateProfile = () =>
-    queryClient.invalidateQueries({ queryKey: ["profile"] });
+    queryClient.invalidateQueries({ queryKey: ["profile", userId] });
 
   const updateMutation = useMutation({
     mutationFn: (values: ProfileFormValues) =>
       axiosPatch<ProfileFormValues, ProfileWithUser>(
-        `/profile/${CURRENT_USER_ID}`,
+        `/profile/${userId}`,
         {
           age: values.age,
           gender: values.gender,
@@ -112,7 +115,7 @@ export default function ProfilePage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => axiosDelete<Profile>(`/profile/${CURRENT_USER_ID}`),
+    mutationFn: () => axiosDelete<Profile>(`/profile/${userId}`),
     onSuccess: () => invalidateProfile(),
   });
 
@@ -316,7 +319,7 @@ export default function ProfilePage() {
               label="Activity Level"
               value={profile.activityLevel ? activityLabelMap[profile.activityLevel] : "—"}
             />
-          
+
             <InfoRow label="Meals per day" value={`${profile.mealsPerDay} meals`} />
             <InfoRow
               label="Meal preference"

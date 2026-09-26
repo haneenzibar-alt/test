@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getUserId } from "@/lib/getUserId";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -18,8 +19,6 @@ const MEAL_LABELS: Record<string, string> = {
   DINNER: "Dinner",
   SNACK: "Snack",
 };
-
-const CURRENT_USER_ID = "123";
 
 interface Recipe {
   id: string;
@@ -60,6 +59,13 @@ interface PlannerResponse {
 }
 
 export default function Planner() {
+  const [userId, setUserId] = useState("");
+
+ useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  setUserId(getUserId());
+}, []);
+
   const [data, setData] = useState<PlannerResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,13 +76,20 @@ export default function Planner() {
   const [savingId, setSavingId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!userId) {
+      return;
+    }
+
     async function loadPlanner() {
       try {
         setLoading(true);
 
         // Keep the current plan when returning from a recipe, but never
         // reuse a stale "no profile" cache after a profile has been saved.
-        const savedPlanner = sessionStorage.getItem("fitplate-planner");
+        // The cache key includes userId so different browsers never share
+        // a cached planner.
+        const cacheKey = `fitplate-planner-${userId}`;
+        const savedPlanner = sessionStorage.getItem(cacheKey);
 
         if (savedPlanner) {
           const parsedPlanner: PlannerResponse = JSON.parse(savedPlanner);
@@ -87,7 +100,7 @@ export default function Planner() {
         }
 
         // Load planner from API only if there is no saved planner
-        const res = await fetch(`/api/planner?userId=${CURRENT_USER_ID}`);
+        const res = await fetch(`/api/planner?userId=${userId}`);
 
         if (!res.ok) {
           const err = await res.json();
@@ -97,7 +110,7 @@ export default function Planner() {
         const json: PlannerResponse = await res.json();
 
         // Save the current planner so it stays the same when returning
-        sessionStorage.setItem("fitplate-planner", JSON.stringify(json));
+        sessionStorage.setItem(cacheKey, JSON.stringify(json));
 
         setData(json);
       } catch (e) {
@@ -108,31 +121,36 @@ export default function Planner() {
     }
 
     loadPlanner();
-  }, []);
-async function handleSaveMeal(recipeId: string) {
-  setSavingId(recipeId);
+  }, [userId]);
 
-  try {
-    const res = await fetch(`/api/saved`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: CURRENT_USER_ID, recipeId }),
-    });
-
-    if (!res.ok && res.status !== 409) {
-      const err = await res.json();
-      throw new Error(err.error || "Failed to save meal");
+  async function handleSaveMeal(recipeId: string) {
+    if (!userId) {
+      return;
     }
 
-    setSavedMealIds((prev) =>
-      prev.includes(recipeId) ? prev : [...prev, recipeId]
-    );
-  } catch (e) {
-    console.error(e);
-  } finally {
-    setSavingId(null);
+    setSavingId(recipeId);
+
+    try {
+      const res = await fetch(`/api/saved`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, recipeId }),
+      });
+
+      if (!res.ok && res.status !== 409) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to save meal");
+      }
+
+      setSavedMealIds((prev) =>
+        prev.includes(recipeId) ? prev : [...prev, recipeId]
+      );
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSavingId(null);
+    }
   }
-}
 
   if (loading) {
     return (

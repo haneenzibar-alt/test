@@ -1,11 +1,10 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { axiosGet, axiosPost, ApiError } from "@/lib/axios";
+import { getUserId } from "@/lib/getUserId";
 import { Profile, User } from "@/generated/prisma/client";
-
-const CURRENT_USER_ID = "123";
 
 type ProfileWithUser = Profile & { user: User };
 
@@ -41,7 +40,8 @@ const quickPrompts = [
 // All the numbers the coach talks about, derived from the real profile —
 // same formulas used on the Profile page, so the two stay in sync.
 function deriveCoachProfile(profile: ProfileWithUser) {
-  const firstName = profile.user?.name?.split(" ")[0] ?? "there";
+  const firstName =
+    (profile.name ?? profile.user?.name)?.split(" ")[0] ?? "there";
 
   const heightM = profile.height ? profile.height / 100 : 0;
   const bmi =
@@ -103,15 +103,22 @@ function deriveCoachProfile(profile: ProfileWithUser) {
 }
 
 export default function NutritionCoachPage() {
+  const [userId, setUserId] = useState("");
+
+  useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  setUserId(getUserId());
+}, []);
+
   const {
     data: profileData,
     isLoading,
     error,
   } = useQuery<ProfileWithUser | null>({
-    queryKey: ["profile"],
+    queryKey: ["profile", userId],
     queryFn: async () => {
       try {
-        return await axiosGet<ProfileWithUser>(`/profile/${CURRENT_USER_ID}`);
+        return await axiosGet<ProfileWithUser>(`/profile/${userId}`);
       } catch (err) {
         if (err instanceof ApiError && err.status === 404) {
           return null;
@@ -119,6 +126,7 @@ export default function NutritionCoachPage() {
         throw err;
       }
     },
+    enabled: !!userId,
   });
 
   // Only the conversation the user actually builds lives in state — the
@@ -145,7 +153,7 @@ export default function NutritionCoachPage() {
   async function sendMessage(text: string) {
     const trimmed = text.trim();
 
-    if (!trimmed || isTyping || !profileData) {
+    if (!trimmed || isTyping || !profileData || !userId) {
       return;
     }
 
@@ -167,7 +175,7 @@ export default function NutritionCoachPage() {
         { reply: string }
       >("/nutrition-coach", {
         message: trimmed,
-        userId: CURRENT_USER_ID,
+        userId,
       });
 
       const aiMessage: ChatMessage = {
