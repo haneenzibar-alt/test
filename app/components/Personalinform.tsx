@@ -90,9 +90,12 @@ export default function Personalinform({
             <div className="rounded-xl border border-gray-200 px-4 py-4 text-center">
               <input
                 type="number"
-                value={age}
-                onChange={(e) => setAge(Number(e.target.value))}
+                value={age === 0 ? "" : age}
+                onChange={(e) =>
+                  setAge(e.target.value === "" ? 0 : Number(e.target.value))
+                }
                 className="w-full bg-transparent text-center text-lg font-bold text-gray-900 outline-none"
+                placeholder="e.g. 25"
               />
               <p className="text-xs text-gray-400">years</p>
             </div>
@@ -104,9 +107,14 @@ export default function Personalinform({
             <div className="rounded-xl border border-gray-200 px-4 py-4 text-center">
               <input
                 type="number"
-                value={weight}
-                onChange={(e) => setWeight(Number(e.target.value))}
+                value={weight === 0 ? "" : weight}
+                onChange={(e) =>
+                  setWeight(
+                    e.target.value === "" ? 0 : Number(e.target.value),
+                  )
+                }
                 className="w-full bg-transparent text-center text-lg font-bold text-gray-900 outline-none"
+                placeholder="e.g. 65"
               />
               <p className="text-xs text-gray-400">kg</p>
             </div>
@@ -118,9 +126,14 @@ export default function Personalinform({
             <div className="rounded-xl border border-gray-200 px-4 py-4 text-center">
               <input
                 type="number"
-                value={height}
-                onChange={(e) => setHeight(Number(e.target.value))}
+                value={height === 0 ? "" : height}
+                onChange={(e) =>
+                  setHeight(
+                    e.target.value === "" ? 0 : Number(e.target.value),
+                  )
+                }
                 className="w-full bg-transparent text-center text-lg font-bold text-gray-900 outline-none"
+                placeholder="e.g. 165"
               />
               <p className="text-xs text-gray-400">cm</p>
             </div>
@@ -128,5 +141,5 @@ export default function Personalinform({
         </div>
       </Card>
     </div>
-);
+  );
 }
