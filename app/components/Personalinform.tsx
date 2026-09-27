@@ -94,6 +94,7 @@ export default function Personalinform({
                 onChange={(e) =>
                   setAge(e.target.value === "" ? 0 : Number(e.target.value))
                 }
+                onWheel={(e) => e.currentTarget.blur()}
                 className="w-full bg-transparent text-center text-lg font-bold text-gray-900 outline-none"
                 placeholder="e.g. 25"
               />
@@ -113,6 +114,7 @@ export default function Personalinform({
                     e.target.value === "" ? 0 : Number(e.target.value),
                   )
                 }
+                onWheel={(e) => e.currentTarget.blur()}
                 className="w-full bg-transparent text-center text-lg font-bold text-gray-900 outline-none"
                 placeholder="e.g. 65"
               />
@@ -132,6 +134,7 @@ export default function Personalinform({
                     e.target.value === "" ? 0 : Number(e.target.value),
                   )
                 }
+                onWheel={(e) => e.currentTarget.blur()}
                 className="w-full bg-transparent text-center text-lg font-bold text-gray-900 outline-none"
                 placeholder="e.g. 165"
               />
